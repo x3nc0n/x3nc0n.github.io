@@ -4,15 +4,5 @@ title: About
 permalink: /about/
 ---
 
-This is the base Jekyll theme. You can find out more info about customizing your Jekyll theme, as well as basic Jekyll usage documentation at [jekyllrb.com](https://jekyllrb.com/)
+John Spaid is a Principal Technical Specialist at Microsoft, focusing on Security, Compliance, and Identity. He has worked in IT and IT Security & Risk Management teams at several other organizations, and previously served as a Police Sergeant at the Oklahoma City Police Department and EMT at EMSA in Oklahoma City. He is on the board of the InfraGard Oklahoma Members Association and is active in many other Oklahoma-area professional communities. He holds a Bachelors degree in Management Information Systems & Ethics from Mid-American Christian University. He lives in Edmond, OK with his wife, Robin, their six amazing children, and three dogs
 
-You can find the source code for Minima at GitHub:
-[jekyll][jekyll-organization] /
-[minima](https://github.com/jekyll/minima)
-
-You can find the source code for Jekyll at GitHub:
-[jekyll][jekyll-organization] /
-[jekyll](https://github.com/jekyll/jekyll)
-
-
-[jekyll-organization]: https://github.com/jekyll
