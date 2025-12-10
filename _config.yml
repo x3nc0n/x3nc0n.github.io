@@ -21,7 +21,7 @@
 title: Spaid on Security
 email: john@spaid.dev
 description: >- # this means to ignore newlines until "baseurl:"
-  Cybersecurity-oriented blog by John Spaid, a Principal Technical Specialist at Microsoft
+  Cybersecurity-oriented blog by John Spaid, Customer Experience Leader for Oil, Gas, and Energy at Microsoft
 baseurl: "" # the subpath of your site, e.g. /blog
 url: "https://www.spaid.dev" # the base hostname & protocol for your site, e.g. http://example.com
 twitter_username: x3nc0n
