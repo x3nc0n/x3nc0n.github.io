@@ -1,0 +1,25 @@
+{
+  "agents": {
+    "researcher": {
+      "persistent_name": "Tank",
+      "universe": "The Matrix",
+      "created_at": "2026-06-29T23:09:34Z",
+      "legacy_named": false,
+      "status": "active"
+    },
+    "devsecops-sme": {
+      "persistent_name": "Trinity",
+      "universe": "The Matrix",
+      "created_at": "2026-06-29T23:09:34Z",
+      "legacy_named": false,
+      "status": "active"
+    },
+    "writer": {
+      "persistent_name": "Switch",
+      "universe": "The Matrix",
+      "created_at": "2026-06-29T23:09:34Z",
+      "legacy_named": false,
+      "status": "active"
+    }
+  }
+}

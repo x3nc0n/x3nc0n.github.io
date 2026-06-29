@@ -1,0 +1,146 @@
+# LinkedIn Post Promotion
+# Automatically shares newly published blog posts to the author's LinkedIn personal profile.
+#
+# SAFE TO MERGE NOW: the guard step at the top exits 0 if the required secrets are not yet
+# configured, so this workflow is a no-op until you're ready to arm it.
+#
+# To arm: follow docs/linkedin-promotion.md and set the required repository secrets.
+
+name: Promote to LinkedIn
+
+on:
+  push:
+    branches:
+      - main
+      - master
+    paths:
+      - '_posts/**'
+  pull_request:
+    branches:
+      - main
+      - master
+    paths:
+      - '_posts/**'
+
+# Minimal permissions — this workflow only reads repository content.
+permissions:
+  contents: read
+
+jobs:
+  promote:
+    name: Share new post on LinkedIn
+    runs-on: ubuntu-latest
+
+    # Skip silently on PRs from forks: they have no secret access and the guard handles the
+    # "no credentials" case, but being explicit avoids any misleading log noise.
+    if: >
+      github.event_name == 'push' ||
+      (github.event_name == 'pull_request' &&
+       github.event.pull_request.head.repo.full_name == github.repository)
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          # Full history is required to diff against github.event.before
+          fetch-depth: 0
+
+      # ------------------------------------------------------------------
+      # GUARD: if no LinkedIn credentials are configured, log a friendly
+      # message and skip all remaining steps.  This is the safety valve that
+      # makes the workflow a no-op for unconfigured repos and forks.
+      # ------------------------------------------------------------------
+      - name: Guard — check LinkedIn credentials
+        id: guard
+        run: |
+          if [ -z "$LI_REFRESH" ] && [ -z "$LI_TOKEN" ]; then
+            echo "configured=false" >> "$GITHUB_OUTPUT"
+            echo "ℹ️  LinkedIn promotion not configured — set LINKEDIN_REFRESH_TOKEN"
+            echo "   (plus LINKEDIN_CLIENT_ID and LINKEDIN_CLIENT_SECRET) as repository"
+            echo "   secrets to enable automatic post promotion. Skipping."
+          else
+            echo "configured=true" >> "$GITHUB_OUTPUT"
+          fi
+        env:
+          # Reference secrets through env vars so values never appear in the
+          # evaluated expression and are masked in logs automatically.
+          LI_REFRESH: ${{ secrets.LINKEDIN_REFRESH_TOKEN }}
+          LI_TOKEN: ${{ secrets.LINKEDIN_ACCESS_TOKEN }}
+
+      # ------------------------------------------------------------------
+      # Detect files that were ADDED to _posts/ in this push/PR.
+      # Handles three cases:
+      #   1. Normal push  — diff from before..after SHA
+      #   2. First push   — no parent, so inspect files added in HEAD commit
+      #   3. Pull request — diff from base SHA to head SHA (dry-run only)
+      # ------------------------------------------------------------------
+      - name: Detect new posts
+        if: steps.guard.outputs.configured == 'true'
+        id: detect
+        run: |
+          BEFORE="${{ github.event.before }}"
+          AFTER="${{ github.sha }}"
+          ZEROS="0000000000000000000000000000000000000000"
+
+          if [ "${{ github.event_name }}" = "pull_request" ]; then
+            BASE="${{ github.event.pull_request.base.sha }}"
+            NEW_FILES=$(git diff --name-only --diff-filter=A "$BASE" "$AFTER" -- _posts/ 2>/dev/null || true)
+          elif [ "$BEFORE" = "$ZEROS" ]; then
+            # First push to this branch — inspect files added in the HEAD commit
+            NEW_FILES=$(git diff-tree --no-commit-id -r --name-only --diff-filter=A HEAD -- _posts/ 2>/dev/null || true)
+          else
+            NEW_FILES=$(git diff --name-only --diff-filter=A "$BEFORE" "$AFTER" -- _posts/ 2>/dev/null || true)
+          fi
+
+          # Keep only Markdown files
+          NEW_FILES=$(echo "$NEW_FILES" | grep -E '\.(md|markdown)$' || true)
+
+          {
+            echo "files<<EOF"
+            printf '%s' "$NEW_FILES"
+            echo ""
+            echo "EOF"
+          } >> "$GITHUB_OUTPUT"
+
+          if [ -z "$NEW_FILES" ]; then
+            echo "No new _posts/ files detected — nothing to promote."
+          else
+            echo "New posts to promote:"
+            echo "$NEW_FILES"
+          fi
+
+      - name: Setup Node.js
+        if: steps.guard.outputs.configured == 'true' && steps.detect.outputs.files != ''
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      # ------------------------------------------------------------------
+      # Promote each new post.
+      # On pull requests: runs with --dry-run (prints what would be posted,
+      # makes zero API calls) so you can verify the output before merging.
+      # ------------------------------------------------------------------
+      - name: Promote posts to LinkedIn
+        if: steps.guard.outputs.configured == 'true' && steps.detect.outputs.files != ''
+        env:
+          # Secrets are injected via environment variables — they are masked
+          # in logs and never appear in the workflow YAML itself.
+          LINKEDIN_REFRESH_TOKEN: ${{ secrets.LINKEDIN_REFRESH_TOKEN }}
+          LINKEDIN_ACCESS_TOKEN: ${{ secrets.LINKEDIN_ACCESS_TOKEN }}
+          LINKEDIN_CLIENT_ID: ${{ secrets.LINKEDIN_CLIENT_ID }}
+          LINKEDIN_CLIENT_SECRET: ${{ secrets.LINKEDIN_CLIENT_SECRET }}
+          LINKEDIN_PERSON_URN: ${{ secrets.LINKEDIN_PERSON_URN }}
+          SITE_URL: "https://www.spaid.dev"
+        run: |
+          DRY_RUN_FLAG=""
+          if [ "${{ github.event_name }}" = "pull_request" ]; then
+            DRY_RUN_FLAG="--dry-run"
+            echo "Pull request detected — running in dry-run mode (no posts will be made)"
+          fi
+
+          while IFS= read -r post_file; do
+            [ -z "$post_file" ] && continue
+            echo ""
+            echo "==> Processing: $post_file"
+            node scripts/promote-to-linkedin.mjs $DRY_RUN_FLAG "$post_file"
+          done <<< "${{ steps.detect.outputs.files }}"
