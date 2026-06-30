@@ -416,7 +416,23 @@ async function main() {
 
   let personUrn = process.env.LINKEDIN_PERSON_URN;
   if (personUrn) {
-    console.log(`Using cached person URN: ${personUrn}`);
+    // Tolerate stray whitespace or wrapping quotes in the stored secret.
+    personUrn = personUrn.trim().replace(/^["']|["']$/g, '').trim();
+    // LinkedIn requires a full URN (urn:li:person:XXXX). If the stored secret is
+    // malformed (e.g. a bare member id or vanity slug), it would 422 the Posts API.
+    // Prefer the authoritative member id from /v2/userinfo; only fall back to
+    // wrapping the stored value if that lookup is unavailable.
+    if (!personUrn.startsWith('urn:')) {
+      console.log('LINKEDIN_PERSON_URN is not a full URN; resolving authoritative URN via /v2/userinfo...');
+      try {
+        personUrn = await resolvePersonUrn(accessToken);
+        console.log('Resolved person URN from userinfo.');
+      } catch (err) {
+        personUrn = `urn:li:person:${personUrn}`;
+        console.log(`userinfo lookup failed (${err.message}); wrapping stored value as ${personUrn}.`);
+      }
+    }
+    console.log(`Using person URN: ${personUrn}`);
   } else {
     console.log('Resolving LinkedIn person URN via /v2/userinfo...');
     personUrn = await resolvePersonUrn(accessToken);
