@@ -3,3 +3,8 @@
 # Each entry records a blog post that has been promoted to LinkedIn.
 # Fields: slug, post_url, promoted_at (ISO-8601 UTC), linkedin_post_id
 ---
+
+- slug: Shipping-Security-at-Machine-Speed
+  post_url: https://www.spaid.dev/2026/06/30/Shipping-Security-at-Machine-Speed.html
+  promoted_at: 2026-06-30T19:53:37.467Z
+  linkedin_post_id: urn:li:share:7477811603296587776
