@@ -20,25 +20,47 @@
 
 title: Spaid on Security
 email: john@spaid.dev
-description: >- # this means to ignore newlines until "baseurl:"
-  Cybersecurity-oriented blog by John Spaid, Customer Experience Leader for Oil, Gas, and Energy at Microsoft
+description: >-
+  AI-accelerated DevSecOps, security, cloud, and identity — by John Spaid, Cybersecurity Customer Experience Leader for Oil, Gas, and Energy at Microsoft
 baseurl: "" # the subpath of your site, e.g. /blog
-url: "https://www.spaid.dev" # the base hostname & protocol for your site, e.g. http://example.com
+url: "https://www.spaid.dev"
 twitter_username: x3nc0n
-github_username:  x3nc0n
+github_username: x3nc0n
+
+# Monday theme settings
+name: Spaid on Security
+tagline: Security | Cloud | Identity | AI
+about_description: >-
+  John Spaid is the Cybersecurity Customer Experience Leader for Microsoft's U.S.
+  Oil, Gas, and Energy unit, leading Cloud Solution Architects who help critical
+  infrastructure providers strengthen their security posture across Defender XDR,
+  Purview, Entra, and Azure. He's focused on AI-accelerated DevSecOps — using
+  GitHub Copilot and agentic workflows to ship secure infrastructure at machine
+  speed. A former Police Sergeant and EMT, John brings a mission-driven approach to
+  security, compliance, and identity. He serves on the board of InfraGard Oklahoma
+  and speaks frequently on critical infrastructure protection and cloud security
+  modernization.
+blog_theme: dark  # dark or light
+pic: profile.jpg  # 200x200 portrait in assets/img/
+
+# Social handles (used by Monday theme templates)
+twitter: x3nc0n
+github: x3nc0n
+
+# Third-party integrations (leave blank to disable)
+analytics:          # Google Analytics tracking ID
+discus_identifier:  # Disqus shortname
+
 # Build settings
-theme: minima
+# theme: removed — Monday theme is vendored directly
 plugins:
   - jekyll-feed
 
+# Include _pages directory so /blog/ page is processed
+include:
+  - _pages
+
 # Exclude from processing.
-# The following items will not be processed, by default.
-# Any item listed under the `exclude:` key here will be automatically added to
-# the internal "default list".
-#
-# Excluded items can be processed by explicitly listing the directories or
-# their entries' file path in the `include:` list.
-#
 exclude:
   - docs/
   - scripts/
