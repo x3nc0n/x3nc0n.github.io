@@ -1,0 +1,51 @@
+# Daily GitHub Pages rebuild
+#
+# WHY: GitHub Pages (legacy build) only rebuilds when something is pushed to the
+# publish branch. Jekyll uses `future: false`, so a post dated in the future is
+# NOT rendered until a build runs on or after its `date:`. Without a daily nudge,
+# a future-dated post would never appear on its scheduled day — and the scheduled
+# LinkedIn promotion would link to a 404.
+#
+# WHAT: This workflow triggers a Pages build every morning (before the LinkedIn
+# promotion window of 12:00-15:00 UTC / 8-11 AM ET). Each build re-evaluates the
+# `future` gate, so any post whose date has now arrived goes live automatically.
+#
+# Result: blog `date:` controls go-live; `linkedin_promote_date` controls the share.
+
+name: Rebuild GitHub Pages (daily)
+
+on:
+  # 11:00 UTC daily = ~07:00 ET (EDT). Runs ~1 hour before the LinkedIn cron so
+  # a same-day post is live on the blog before it is promoted.
+  schedule:
+    - cron: '0 11 * * *'
+
+  # Manual trigger for ad-hoc rebuilds (e.g., to publish a same-day post now).
+  workflow_dispatch:
+
+# pages:write is required to request a build via the Pages API.
+permissions:
+  contents: read
+  pages: write
+
+# Never let two rebuilds overlap.
+concurrency:
+  group: pages-rebuild
+  cancel-in-progress: false
+
+jobs:
+  rebuild:
+    name: Request a fresh Pages build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Trigger Pages build
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          echo "Requesting a GitHub Pages build for ${GITHUB_REPOSITORY}..."
+          # POST /repos/{owner}/{repo}/pages/builds queues a rebuild of the live site.
+          gh api \
+            --method POST \
+            -H "Accept: application/vnd.github+json" \
+            "repos/${GITHUB_REPOSITORY}/pages/builds"
+          echo "Pages build requested. Future-dated posts whose date has arrived will now publish."

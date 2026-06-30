@@ -1,0 +1,117 @@
+# Promote to LinkedIn (Scheduled)
+# Scans _posts/ front-matter and posts any due promotions to LinkedIn automatically.
+# "Due" = linkedin_promote_date <= today (America/New_York), or linkedin_promote: true with no date.
+#
+# SAFE TO MERGE NOW: the guard step exits 0 if credentials are not yet configured,
+# so this workflow is a no-op until the repository secrets are set.
+#
+# To arm: follow docs/linkedin-promotion.md and set the required repository secrets.
+
+name: Promote to LinkedIn (Scheduled)
+
+on:
+  # Run hourly across the US peak window: 12:00–15:00 UTC = 8–11 AM ET, Tue–Thu.
+  # This aligns with the research-backed best window for a US professional audience.
+  schedule:
+    - cron: '0 12-15 * * 2-4'
+
+  # Allow a manual trigger for testing; dry_run defaults to false.
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: 'Dry run — parse and select due posts, print intended actions, make zero API calls, do not update ledger'
+        type: boolean
+        default: false
+
+# Write permission is required to commit the dedup ledger after posting.
+permissions:
+  contents: write
+
+# Prevent concurrent runs from double-posting the same slug.
+# cancel-in-progress: false ensures an in-flight run is never interrupted mid-ledger-write.
+concurrency:
+  group: linkedin-scheduled
+  cancel-in-progress: false
+
+jobs:
+  promote:
+    name: Post scheduled LinkedIn promotions
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          # Full history is not required here, but fetch-depth 0 keeps the working
+          # tree consistent with what the push workflow expects.
+          fetch-depth: 0
+
+      # ------------------------------------------------------------------
+      # GUARD: if no LinkedIn credentials are configured, log a friendly
+      # message and skip all remaining steps. Identical pattern to the
+      # on-push workflow — safe no-op for unconfigured repos and forks.
+      # ------------------------------------------------------------------
+      - name: Guard — check LinkedIn credentials
+        id: guard
+        run: |
+          if [ -z "$LI_REFRESH" ] && [ -z "$LI_TOKEN" ]; then
+            echo "configured=false" >> "$GITHUB_OUTPUT"
+            echo "ℹ️  LinkedIn promotion not configured — set LINKEDIN_REFRESH_TOKEN"
+            echo "   (plus LINKEDIN_CLIENT_ID and LINKEDIN_CLIENT_SECRET) as repository"
+            echo "   secrets to enable scheduled post promotion. Skipping."
+          else
+            echo "configured=true" >> "$GITHUB_OUTPUT"
+          fi
+        env:
+          # Reference secrets through env vars so values are masked in logs
+          # and never appear in the evaluated expression.
+          LI_REFRESH: ${{ secrets.LINKEDIN_REFRESH_TOKEN }}
+          LI_TOKEN: ${{ secrets.LINKEDIN_ACCESS_TOKEN }}
+
+      - name: Setup Node.js
+        if: steps.guard.outputs.configured == 'true'
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      # ------------------------------------------------------------------
+      # Run the scheduled promotion script.
+      # All secrets are injected via environment variables — they are masked
+      # in logs and never appear in workflow YAML expressions.
+      # ------------------------------------------------------------------
+      - name: Run scheduled promotion
+        if: steps.guard.outputs.configured == 'true'
+        env:
+          LINKEDIN_REFRESH_TOKEN: ${{ secrets.LINKEDIN_REFRESH_TOKEN }}
+          LINKEDIN_ACCESS_TOKEN: ${{ secrets.LINKEDIN_ACCESS_TOKEN }}
+          LINKEDIN_CLIENT_ID: ${{ secrets.LINKEDIN_CLIENT_ID }}
+          LINKEDIN_CLIENT_SECRET: ${{ secrets.LINKEDIN_CLIENT_SECRET }}
+          LINKEDIN_PERSON_URN: ${{ secrets.LINKEDIN_PERSON_URN }}
+          SITE_URL: "https://www.spaid.dev"
+        run: |
+          DRY_RUN_FLAG=""
+          if [ "${{ inputs.dry_run }}" = "true" ]; then
+            DRY_RUN_FLAG="--dry-run"
+            echo "Dry-run mode requested via workflow_dispatch — no posts will be made."
+          fi
+          node scripts/promote-scheduled.mjs $DRY_RUN_FLAG
+
+      # ------------------------------------------------------------------
+      # Commit the ledger if it changed.
+      # Uses the standard github-actions[bot] identity so the commit is
+      # attributed to the automation, not a human user.
+      # Skipped on dry-run (ledger is not written in that mode).
+      # ------------------------------------------------------------------
+      - name: Commit ledger if updated
+        if: steps.guard.outputs.configured == 'true' && inputs.dry_run != true
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          if ! git diff --quiet _data/linkedin_promoted.yml; then
+            git add _data/linkedin_promoted.yml
+            git commit -m "chore: record LinkedIn promotions [skip ci]"
+            git push
+            echo "Ledger committed and pushed."
+          else
+            echo "No ledger changes — nothing to commit."
+          fi

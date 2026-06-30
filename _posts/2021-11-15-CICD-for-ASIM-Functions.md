@@ -5,6 +5,8 @@ description: Keeping ASIM functions up-to-date with GitHub Actions
 img: sentinel_logo.png
 date: 2021-11-15 06:00 -0600
 tags: Microsoft Sentinel Azure ASIM GitHub CI/CD security SIEM
+categories: security azure sentinel devsecops
+permalink: /2021/11/15/CICD-for-ASIM-Functions.html
 ---
 
 >UPDATE: ASIM is now [built-in to Sentinel](https://cda.ms/3W3), so don't do this
