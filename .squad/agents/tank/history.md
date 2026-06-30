@@ -81,3 +81,20 @@
 - `AddAzPrivateDnsConditionalForwarders-pwsh`: 50+ Private DNS zones → `168.63.129.16`. Region-aware token substitution ({regionName}, {regionCode}). Forest/Domain replication scope.
 - **Universal pattern across ALL repos:** `Co-authored-by: Copilot <223556219+Copilot@users.noreply.github.com>` on every commit. Squad team on every non-trivial repo. GitHub Actions governance gates on every IaC repo. OIDC (no long-lived creds) on every deployment.
 - **Redaction list:** Subscription ID `6a170127-f4d5-4706-af95-e957af9cbcff` (helios-core README), Tenant ID `ef4ecf0b-...` (global), Management subscription `45da0317-...` (alz-startstopv2), `john@spaid.dev` email (alz-startstopv2 alert group).
+## Cost Research (2026-06-29)
+
+**Task:** Fetched COST.md from every source repo (posts 02–14) via `gh api`. Output: `.squad/files/research/costs.md`.
+
+**Repos WITH COST.md (6 of 18+ checked):**
+- `Spava-Corp/homeschool-hero-azure` — $270 tracked; Claude Opus 4.6 dominant ($192.50). Totals table verified ✓.
+- `Spava-Corp/deepseismic2-infra` — ~$19.50 summed from session log (no stated total in file).
+- `x3nc0n/entra-verifiedid-example` — ~$8–10 tracked; Claude Opus + Sonnet, single session. Totals verified ✓.
+- `Spava-Corp/entra-verifiedid-deploy` — ~$1.50–2.00 tracked (this repo's share of the joint session).
+- `x3nc0n/secops-squad-starter-kit` — ~$12–15 tracked; Sonnet + Haiku. Totals verified ✓.
+- `x3nc0n/deepseismic2` — ~$41.55 tracked (18 sessions). **DISCREPANCY:** cumulative table shows $33.55 (12 sessions, stale); update history is authoritative at $41.55. Scribes should cite $41.55.
+
+**Repos WITHOUT COST.md (12 repos):** alz-mgmt, alz-mgmt-templates, alz-sentinel, purview-information-protection-as-code, alz-purview-payg, purview-ip-labels, azure-afd-apim-private-demo (both), aio-security, alz-security-copilot, jospaid-helios-core-azureopenai, alz-startstopv2, squad, secops-squad (private — accessible, no COST.md), ConditionalAccessDocumentation, AddAzPrivateDnsConditionalForwarders-pwsh, YellowKey, altered-carbon.
+
+**Pattern:** Untracked repos are generally pre-May 2026 (pre-AI-intensive era) or smaller/focused repos. The COST.md convention was established around the deepseismic2 project (June 2026) and propagated forward.
+
+**Estate tracked total:** ~$362 across 6 repos. Full estate estimate with untracked repos: ~$500–750.
