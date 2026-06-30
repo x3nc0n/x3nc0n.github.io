@@ -69,6 +69,14 @@ Every commit in the repos I'll be discussing went through a PR. Every what-if ru
 
 Machine-speed shipping without machine-speed governance is how you end up with a very efficient path to a very bad place.
 
+## What This Cost — and Why I'll Tell You Every Time
+
+One commitment for this series: every post will carry a real AI cost figure. Not a vibe, not "it was cheap" — an actual dollar estimate, drawn from each source repo's `COST.md` where one exists and clearly labeled as an estimate where it doesn't. I think cost transparency is part of the honesty the AI conversation is missing, so I'm going to dogfood it.
+
+Here's the headline for the whole estate you're about to read about: the tracked figures across the repos that keep a `COST.md` come to roughly **$414** in AI build cost. Including reasonable estimates for the repos that don't track it, the whole body of work — landing zones, detection-as-code, information protection, verified identity, zero-trust edge, IoT, AI-capacity governance, cost controls, a SOC agent framework, an energy-sector ML platform, and a pile of governance tooling — lands somewhere around **$500–750** in LLM tokens. That's the build cost of a security practice's worth of infrastructure.
+
+Two ground rules I'll hold throughout. First, **build cost is not run cost** — the tokens to *build* a thing and the Azure bill to *run* it are different numbers, and I keep them separate in every post. Second, **no recursion**: I don't count the cost of writing the cost sections themselves. Each post's own production (research, drafting, review) runs a flat ~$1.00, and I'll note it without spiraling into counting the cost of counting the cost.
+
 ## Follow Along
 
 Each post in this series is going to be grounded in real repositories, real commits, and real design tradeoffs. I'll include actual code from the repos, honest assessments of what the AI got right and what I had to fix, and practical guidance you can apply regardless of whether you're on a team of one or a team of fifty.

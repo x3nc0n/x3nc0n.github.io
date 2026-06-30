@@ -192,6 +192,18 @@ The commit history shows `Co-authored-by: Copilot` on the most recent CI/CD work
 
 The `deepseismic2-infra` COST.md file tracks AI agent costs per work session. The full infra scaffold — Container Apps environment, Azure ML, Azure OpenAI, Key Vault, Log Analytics, ACR, ADLS Gen2, private endpoints — was generated from an architecture kickoff conversation in a single session. That's not a workflow that works without having a clear architecture in your head first. But if you do have the architecture clear, the gap between "I know what I want" and "there's valid Bicep for it" collapses significantly.
 
+## What This Cost to Build (and Write)
+
+A through-line of this series is putting a real number on the AI build cost of every repo, drawn from each repo's `COST.md` where one exists. The ALZ post spans four repos:
+
+- **homeschool-hero-azure: ~$270 (tracked).** This one has a real `COST.md` and it's the big one — a full multi-agent landing-zone build. The breakdown validates cleanly: Opus 4.6 $192.50 + GPT-5.4 $64.00 + Haiku 4.5 $3.00 + Sonnet 4.6 $10.50 = $270.01. The largest single session was a Squad orchestration run that built CI/CD, infra modules, and deploy scripts in parallel (91.5M input tokens).
+- **deepseismic2-infra: ~$19.50 (tracked).** Summed from its `COST.md` session log across ten sessions — the Volve dataset copy and the SP→UAMI OIDC migration were the costliest line items.
+- **alz-mgmt + alz-mgmt-templates: ~$40–100 (estimated).** Neither tracks a `COST.md`. The 21-module Bicep repo with path-filtered CI/CD is the deeper of the two; the templates library was built alongside it in the same sessions.
+
+**Source build cost: roughly $320–370** across all four repos ($289.50 tracked + $40–100 estimated). These are AI *build* costs — LLM tokens to generate the IaC and pipelines — **not** Azure runtime costs, which are a separate bill I keep separate in every post.
+
+Producing this post itself ran the usual flat **~$1.00** (research, drafting, review). And per the rule I hold all series: I don't count the cost of writing this cost section. No recursion.
+
 ## What to Steal from This
 
 If you're looking to apply any of this in your own environment:
