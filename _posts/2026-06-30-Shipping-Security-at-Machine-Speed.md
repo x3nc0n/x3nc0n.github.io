@@ -12,7 +12,7 @@ linkedin_promote_date: 2026-06-30
 
 A few months ago I wrote about [Project Glasswing](https://www.spaid.dev/security/ai/microsoft/anthropic/vulnerability-management/2026/05/02/Project-Glasswing-and-Mythos.html) — Anthropic's frontier AI model hunting and finding zero-days that sat undetected for decades. My thesis there was that autonomous AI had collapsed the asymmetry between attacker and defender, and that organizations needed agent-team architectures to have any hope of keeping up. That post was about the threat landscape and what it *implies*. This series is about what I actually *did* about it.
 
-Because here's what shifted for me: it's not just that AI can find vulnerabilities faster than humans. It's that AI can *build* security infrastructure faster, *write* detection logic faster, *govern* identity and data policy faster — and if you set it up right, with human oversight at the decision layer, the output is better than what most teams ship manually. I know because I spent the last several months rebuilding my security and cloud engineering practice around exactly this model, and I have the commits to prove it.
+Because here's what shifted for me: it's not just that AI can find vulnerabilities faster than humans. It's that AI can *build* security infrastructure faster, *write* detection logic faster, *govern* identity and data policy faster — and if you set it up right, with human oversight at the decision layer, the output is better than what most teams ship manually. I know because I spent the last month rebuilding my security and cloud engineering practice around exactly this model, and I have the commits to prove it.
 
 ## The Thesis
 
