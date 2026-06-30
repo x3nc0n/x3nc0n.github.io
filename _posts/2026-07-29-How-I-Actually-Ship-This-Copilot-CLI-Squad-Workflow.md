@@ -9,19 +9,19 @@ linkedin_promote_date: 2026-07-29
 
 # How I Actually Ship This: The Copilot CLI + Squad Workflow
 
-Thirteen posts ago I made a claim: that AI had changed how I ship security infrastructure, and that I'd show you with real repos instead of slideware. We've now walked through landing zones, detection-as-code, information protection, verifiable identity, zero-trust edge, IoT operations, AI-capacity governance, cost-as-security, an agent team for the SOC, an energy-sector ML platform, identity governance, and vulnerability research. This is the capstone, and it answers the only question that really matters: **after all of that, what actually changed in how the work gets done?**
+Early in this series I made a claim: that AI had changed how I ship security infrastructure, and that I'd show you with real repos instead of slideware. We've now walked through landing zones, detection-as-code, information protection, verifiable identity, the zero-trust edge, AI-capacity governance, cost-as-security, an agent team for the SOC, and a two-Squad energy-sector ML build. This is the capstone, and it answers the only question that really matters: **after all of that, what actually changed in how the work gets done?**
 
 The honest answer is in the commit histories, and it's more specific — and more boring, in a good way — than "AI is magic." Every meaningful repo in my estate since late April 2026 carries the same fingerprint. Let me show you the pattern, then the accounting.
 
 ## The Universal Fingerprint
 
-Open any Spava-Corp or x3nc0n repo from the last few months and search the commits. You'll find this trailer on every meaningful one:
+Open any repo in my estate from the last few months — the **public** `x3nc0n` ones you can read for yourself, the **private** `Spava-Corp` ones I audit internally — and search the commits. You'll find this trailer on every meaningful one:
 
 ```
 Co-authored-by: Copilot <223556219+Copilot@users.noreply.github.com>
 ```
 
-That's not boilerplate — it's a verifiable, public record of collaboration. The human writes the commit title and makes the decision; Copilot is credited as co-author. Across the estate it's remarkably consistent: alz-startstopv2 (25 commits), secops-squad-starter-kit (35+), alz-security-copilot, the OpenAI core, altered-carbon — all of it, co-authored, all the way down. The collaboration isn't a story I'm telling you. It's a thing you can audit.
+That's not boilerplate — it's a verifiable record of collaboration. The human writes the commit title and makes the decision; Copilot is credited as co-author. Across the estate it's remarkably consistent: the public `secops-squad-starter-kit` (35+ commits), and — private by design, because they're built to deploy real infrastructure — `alz-startstopv2` (25 commits), `alz-security-copilot`, the OpenAI core, and more. For the public repos that's a claim you can verify yourself, commit by commit. The `Spava-Corp` repos stay private permanently — they're deploy-intended, not showcases — but they carry the identical fingerprint, audited the same way on the inside.
 
 ## The Repeating Pattern
 
@@ -60,6 +60,8 @@ It would be easy to read all this as "the AI does the work now." It isn't, and t
 - **Merge gates and environment approval.** Every merge to main is human-reviewed. Every production deploy needs environment approval. The triple-locked destroy workflow needs a manual trigger *plus* a typed confirmation *plus* an environment gate.
 - **Human-in-the-loop at the judgment layer, not the volume layer.** When a detection request comes in as a GitHub Issue, the agent triages, routes, writes the KQL, and opens the PR. The human reviews and merges. Steps 2–5 are the agent's; step 6 is mine.
 
+One honest *evolution* worth flagging, because it's the through-line I've foreshadowed all series: "OIDC, no stored secrets" is the floor, not the ceiling. Most of these pipelines still federate to an **app-registration service principal** — far better than a stored secret, but still an Entra app object someone has to own, consent to, and govern. The pattern I'm converting the whole estate to is **OIDC federated to a User-Assigned Managed Identity (UAMI)** instead: the same `azure/login@v2` flow, but the identity is a plain Azure resource governed by IaC and RBAC — no app registration, no client secret, no consent sprawl. The `deepseismic2-infra` Squad already ran this cutover end-to-end (sub-scoped Contributor SP → RG-scoped UAMI with branch- and PR-federated credentials) as a single owned, rollback-planned issue. A dedicated post on converting every repo's Actions — and, where it fits, the apps' own runtime identity — from OIDC+SP to UAMI in **hours, not weeks**, is coming.
+
 What changed isn't accountability — that's still entirely human, by design. What changed is **the ratio.** Before: one human, one task, one day. Now: one human directing eight parallel agents across multiple tasks in the same day, with every decision still signed by the person who made it. The AI took the volume, the iteration, the documentation, and the consistency. I kept the direction, the review, the governance, and the judgment.
 
 ## What the Whole Estate Cost
@@ -86,6 +88,6 @@ One note on honesty, because this series has been strict about cost transparency
 4. **Keep humans on the judgment layer, not the volume layer.** Agents triage, route, draft, and open PRs. You review and merge. Accountability stays human; throughput multiplies.
 5. **Track the cost in the open.** A COST.md per repo turns "AI built this" into a receipt — and keeps you honest about build-vs-run and about not getting recursive.
 
-Thirteen posts of security infrastructure, one repeating loop. The tools are GitHub Copilot CLI and Squad; the discipline is everything CI/CD and least-privilege and human-reviewed-merges already taught us. AI didn't replace that discipline — it ran inside it, took the volume, and changed the ratio. The human still ships. There are just a lot more hands now.
+A whole series of security infrastructure, one repeating loop. The tools are GitHub Copilot CLI and Squad; the discipline is everything CI/CD and least-privilege and human-reviewed-merges already taught us. AI didn't replace that discipline — it ran inside it, took the volume, and changed the ratio. The human still ships. There are just a lot more hands now.
 
-*One more to go: the dogfood post. This whole series auto-promotes itself to LinkedIn from the post front-matter — and next I'll hand you the entire template so you can do it too, no unlimited-Copilot subscription required.*
+*Still ahead: the dogfood post. This whole series auto-promotes itself to LinkedIn from the post front-matter — and I'll hand you the entire template so you can do it too, no unlimited-Copilot subscription required.*

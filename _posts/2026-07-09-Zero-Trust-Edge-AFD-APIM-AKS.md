@@ -13,6 +13,8 @@ linkedin_promote_date: 2026-07-09
 
 I wanted to build one that closes every gap explicitly, and document *why* each control is there. The result lives in two repos — `azure-afd-apim-private-demo` (the public reference implementation) and a Spava-Corp evolution that adds API definitions and a documented architectural decision. The path is **Azure Front Door Premium + WAF → API Management → AKS over Private Link**, all modular Bicep with Helm charts for the Kubernetes backends, and there is no public IP on the cluster anywhere.
 
+One honest caveat before we walk it: this architecture is built and it deploys, but I'm still validating it **end-to-end** — treat it as a hardened reference to study and adapt, not a turnkey drop-in I've run in anger under real traffic. The controls below are the parts I'm most confident in, and I'll keep iterating as I test the full path.
+
 ## The Path a Request Takes
 
 ```
@@ -63,6 +65,8 @@ properties: {
 ```
 
 DRS 2.1 covers SQL injection, XSS, local/remote file inclusion, command injection, scanner detection, session fixation, and Java attacks. Bot Manager blocks known-bad bots, challenges unknown ones, and lets legitimate crawlers through. The point is that these threats are stopped at the global edge, before a request ever reaches your API gateway, let alone your cluster.
+
+This single-app demo is also where a bigger pattern begins. Putting one WAF policy in front of one API is the easy case; the harder, more valuable work is **tuning** that WAF for real production traffic — managing false positives, per-route exclusions, and custom rules — and consolidating *many* backends behind **one centralized Front Door** using AFD **origins** as a shared application-delivery layer. That's exactly the direction the ALZ infrastructure work and the DeepSeismic infra/app build pushed on, and I go deeper on WAF tuning and the centralized AFD-origin delivery model in the landing-zone and DeepSeismic infrastructure posts in this series. Here I'm just establishing the single-path baseline they build on.
 
 ## Control Two: APIM Locked to Front Door by Header
 

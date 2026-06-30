@@ -3,9 +3,11 @@ layout: post
 title:  "Identity Governance as Documentation"
 description: "A Conditional Access policy scoped to a raw GUID is invisible to governance. A private DNS forwarder you forgot to add silently routes 'private' traffic over the public internet. Two PowerShell tools turn opaque identity and network config into living, auditable documentation — and they're exactly what AI now runs on a schedule."
 categories: security devsecops identity conditional-access dns powershell governance
-linkedin_promote: true
-linkedin_promote_date: 2026-07-23
+linkedin_promote: false
+published: false
 ---
+
+<!-- DRAFT — held out of the series. Built on older, pre-AI repos (ConditionalAccessDocumentation fork + AddAzPrivateDnsConditionalForwarders-pwsh); doesn't fit the AI-accelerated DevSecOps narrative. Keep as a draft; revisit only if reframed around AI-driven scheduling/automation of these tools. -->
 
 # Identity Governance as Documentation
 

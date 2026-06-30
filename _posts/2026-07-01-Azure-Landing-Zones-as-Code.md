@@ -42,33 +42,6 @@ The `templates/core/governance/lib/alz/` directory contains 100+ policy definiti
 
 This is the point of the "landing zone → workload" model. The ALZ layer sets the guardrails. A workload team deploys their app into the `sc-landingzones-online` subscription and the policies are already there, already active. They can't accidentally expose a management port to the internet from inside their subscription because the policy won't allow the resource to be created.
 
-## The Bicep Workload Pattern
-
-Workload repos use the same Bicep-first pattern. Here's a condensed version of the `main.bicep` from my seismic analysis PoC (`deepseismic2-infra`) running in the online landing zone:
-
-```bicep
-targetScope = 'resourceGroup'
-
-param environment string = 'dev'
-param location string = resourceGroup().location
-param projectName string = 'deepseismic2'
-param tags object = { project: 'deepseismic2', environment: 'dev', owner: 'jospaid' }
-
-// Unique suffix prevents global name collisions — ALZ-aligned naming convention
-var uniqueSuffix = substring(uniqueString(subscription().subscriptionId, resourceGroup().name, projectName, environment), 0, 6)
-var compactName = toLower('${projectName}${environment}${uniqueSuffix}')
-var storageAccountName = 'st${compactName}'
-var acrName = 'acr${compactName}'
-var keyVaultName = 'kv-ds2${environment}${uniqueSuffix}'
-var containerEnvName = 'cae-${projectName}-${environment}'
-var backendAppName = 'ca-${projectName}-api-${environment}'
-
-// Private endpoints for all PaaS services
-param enableContainerRegistryPrivateEndpoint bool = false
-```
-
-The `uniqueString()` approach is standard ALZ naming practice — you get consistent, reproducible names that don't collide across subscriptions without maintaining a manual name registry. Private endpoints are parameterized and toggled off for dev, on for production. That's intentional: the security controls exist in code from day one, and enabling them for production is a config change, not a build change.
-
 ## The CI/CD Design: What-If Gating That Actually Scales
 
 Twenty-one Bicep modules covering platform, networking, governance, and workload infrastructure. If every PR runs a what-if against all 21, you burn quota, you slow feedback, and engineers start ignoring the results. The solution is path-filter gating: only run what-if for the modules whose templates actually changed.
@@ -167,40 +140,20 @@ The `id-token: write` permission on the calling job is what makes this work. Git
 
 If you're still using service principal JSON credentials in GitHub Actions for Azure deployments, please stop. OIDC is available on the free tier. The migration is a two-hour project. The credential-leak blast radius reduction is not incremental — it's categorical.
 
-## The Supply Chain Security Angle: Immutable Image Digests
-
-One of the more interesting security patterns in the workload repos is digest pinning. In `deepseismic2-infra`, the deploy workflow pulls container images from GitHub Container Registry into Azure Container Registry, then pins the SHA digest back into the Bicep parameter file and commits it to git:
-
-```yaml
-# From deploy-infra.yml — digest pinning step
-- name: Pin digests in dev.bicepparam
-  run: |
-    for p in backendImage preprocessJobImage inferenceJobImage bakeJobImage; do
-      sed -i -E "s#(param ${p} = ').*(')#\1${API_REF}\2#" "$PARAM"
-    done
-    git commit -m "chore(deploy): pin ${ACR_TAG} image digests [skip ci]"
-    git push
-```
-
-This means every deployed container image version is recorded in git as an immutable reference. You can look at any commit and know exactly what image was running. You can't accidentally re-deploy a mutable `:latest` tag and get a different binary than what you tested. Tag mutation attacks — where a malicious actor pushes a compromised image to the same tag — are neutralized because your Bicep parameters reference the digest, not the tag.
-
 ## The AI Angle: Where Copilot Actually Helped
 
 Here's the concrete version. The per-module path-filter CI logic — the YAML anchor pattern, the `_shared: &shared` structure, the 21 module gates — was authored with GitHub Copilot in the CLI. So was the CD bash path-detection script that runs `git diff --name-only` and constructs the module gate matrix. The `alz-mgmt-templates` reusable action library architecture itself — composite actions for `bicep-installer`, `bicep-variables`, `bicep-deploy`, plus the two reusable workflow templates — was built with Copilot pair-programming throughout.
 
 The commit history shows `Co-authored-by: Copilot` on the most recent CI/CD work. This is what I mean when I say AI accelerates the work: not "AI wrote the whole thing," but "AI wrote the bash path-detection script while I focused on the module gating logic." The kind of repetitive-but-must-be-correct scaffolding that eats 45 minutes of careful manual construction took 10-15 minutes of iterating with Copilot. The design decisions were still mine. The security review was still mine. But the boilerplate wasn't.
 
-The `deepseismic2-infra` COST.md file tracks AI agent costs per work session. The full infra scaffold — Container Apps environment, Azure ML, Azure OpenAI, Key Vault, Log Analytics, ACR, ADLS Gen2, private endpoints — was generated from an architecture kickoff conversation in a single session. That's not a workflow that works without having a clear architecture in your head first. But if you do have the architecture clear, the gap between "I know what I want" and "there's valid Bicep for it" collapses significantly.
-
 ## What This Cost to Build (and Write)
 
-A through-line of this series is putting a real number on the AI build cost of every repo, drawn from each repo's `COST.md` where one exists. The ALZ post spans four repos:
+A through-line of this series is putting a real number on the AI build cost of every repo, drawn from each repo's `COST.md` where one exists. The two repos in scope here are the landing zone itself — `alz-mgmt` (the 21-module Bicep tree with path-filtered CI/CD) and `alz-mgmt-templates` (the shared reusable-workflow library). Neither tracks a `COST.md` yet, so this is an honest, labeled estimate rather than a tracked receipt:
 
-- **homeschool-hero-azure: ~$270 (tracked).** This one has a real `COST.md` and it's the big one — a full multi-agent landing-zone build. The breakdown validates cleanly: Opus 4.6 $192.50 + GPT-5.4 $64.00 + Haiku 4.5 $3.00 + Sonnet 4.6 $10.50 = $270.01. The largest single session was a Squad orchestration run that built CI/CD, infra modules, and deploy scripts in parallel (91.5M input tokens).
-- **deepseismic2-infra: ~$19.50 (tracked).** Summed from its `COST.md` session log across ten sessions — the Volve dataset copy and the SP→UAMI OIDC migration were the costliest line items.
-- **alz-mgmt + alz-mgmt-templates: ~$40–100 (estimated).** Neither tracks a `COST.md`. The 21-module Bicep repo with path-filtered CI/CD is the deeper of the two; the templates library was built alongside it in the same sessions.
+- **alz-mgmt: ~$60–120 (estimated).** The deeper of the two — the management-group hierarchy, 100+ policy assignments wired to scope, the 21-module Bicep tree, and the path-filtered CI/CD. The path-filter YAML anchor pattern and the CD bash diff logic were the costliest AI-assisted pieces.
+- **alz-mgmt-templates: ~$20–40 (estimated).** The composite actions (`bicep-installer`, `bicep-variables`, `bicep-deploy`) and the two reusable workflow templates, built alongside `alz-mgmt` in the same sessions.
 
-**Source build cost: roughly $320–370** across all four repos ($289.50 tracked + $40–100 estimated). These are AI *build* costs — LLM tokens to generate the IaC and pipelines — **not** Azure runtime costs, which are a separate bill I keep separate in every post.
+**Source build cost: roughly $80–160 (estimated)** across the two landing-zone repos. Neither tracks a `COST.md` yet, so treat this as a directional estimate, not a receipt. These are AI *build* costs — LLM tokens to generate the IaC and pipelines — **not** Azure runtime costs, which are a separate bill I keep separate in every post.
 
 Producing this post itself ran the usual flat **~$1.00** (research, drafting, review). And per the rule I hold all series: I don't count the cost of writing this cost section. No recursion.
 
@@ -216,8 +169,6 @@ If you're looking to apply any of this in your own environment:
 
 4. **Put your what-if gating in a shared library.** The `alz-mgmt-templates` pattern scales. When you add a new module, you wire it into the path filter and pass its boolean to the shared template. The deploy logic doesn't change.
 
-5. **Pin container image digests in git.** It's five lines of `sed`. The supply chain auditability you get in return — "what was running at 2:00 AM when that alert fired?" answered with a `git log` — is worth it.
-
-6. **Use AI for the scaffolding, own the architecture.** The path-filter YAML, the bash diff script, the composite action boilerplate — these are correct-but-tedious. Let Copilot draft them. Keep your attention on the design decisions that actually matter.
+5. **Use AI for the scaffolding, own the architecture.** The path-filter YAML, the bash diff script, the composite action boilerplate — these are correct-but-tedious. Let Copilot draft them. Keep your attention on the design decisions that actually matter.
 
 The portal-drift problem doesn't get solved by better documentation or stricter change controls. It gets solved by making IaC the only path to production, making every change auditable via PR, and making the policy enforcement automatic rather than aspirational. This stack does all three. The AI just made building it less of a slog.

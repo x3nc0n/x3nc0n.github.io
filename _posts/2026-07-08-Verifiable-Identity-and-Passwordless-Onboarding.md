@@ -1,7 +1,7 @@
 ---
 layout: post
 title:  "Verifiable Identity and Passwordless Onboarding with Entra Verified ID"
-description: "A full employee onboarding portal built on Entra Verified ID, FIDO2, and manager approval — plus the mid-build pivot from App Service to Container Apps when the landing zone had zero App Service quota."
+description: "A full employee onboarding portal built on Entra Verified ID, FIDO2, and manager approval — plus the mid-build pivot from App Service to Container Apps, and why Container Apps was the better fit anyway."
 categories: security devsecops entra verified-id fido2 passwordless identity
 linkedin_promote: true
 linkedin_promote_date: 2026-07-08
@@ -11,7 +11,9 @@ linkedin_promote_date: 2026-07-08
 
 Day-one onboarding is one of the most under-secured moments in an organization's identity lifecycle. A new hire arrives, and somewhere in the next few hours a chain of loosely-connected manual steps decides what they can access for the rest of their tenure. HR confirms the start date. IT provisions an account. Someone enrolls MFA. Someone else grants group memberships. Each handoff is a social-engineering opportunity — "hi, I'm the new contractor, my manager said to give me access" — and each one is mostly undocumented.
 
-I wanted to see how much of that I could collapse into a single, sequenced, auditable, *cryptographic* flow. The result is a full onboarding portal built around **Microsoft Entra Verified ID**, with the Node.js application in `entra-verifiedid-example` and the CI/CD automation in `entra-verifiedid-deploy`. It covers in-person identity proofing, manager approval, issuance of a W3C Verifiable Credential into Microsoft Authenticator, and FIDO2 passkey registration — so the employee is passwordless from their first hour.
+I wanted to see how much of that I could collapse into a single, sequenced, auditable, *cryptographic* flow. The result is a full onboarding portal built around **Microsoft Entra Verified ID**, in the public `entra-verifiedid-example` repo. It covers in-person identity proofing, manager approval, issuance of a W3C Verifiable Credential into Microsoft Authenticator, and FIDO2 passkey registration — so the employee is passwordless from their first hour.
+
+A caveat up front: this one is still very much a work in progress, and I'm publishing it in that state on purpose. *"Help us with Verified ID"* is one of the most common asks I get from customers, and the honest answer is that Verified ID today is largely a **partner-driven, custom-code exercise**. Microsoft gives you the primitives — the issuer/verifier request APIs, the credential contract, the Authenticator wallet — but the onboarding experience that wires those to *your* identity proofing, *your* approval chain, and *your* downstream provisioning is something you build. So treat this less as a finished product and more as a reference implementation of the parts customers keep asking how to assemble.
 
 ## The Flow: Four Boundaries, One Sequence
 
@@ -101,9 +103,16 @@ The attestation model is `id_token_hint` — the backend passes verified claims 
 
 Here's the part I find most representative of how real infrastructure work actually goes — and where AI-assisted iteration earned its keep.
 
-The original design targeted Azure App Service. At deployment time, the landing zone subscription (an Enterprise-Scale Landing Zone) returned a quota wall: **zero App Service quota**. Not "a little"; none. In the old world this is where you file a quota-increase ticket and lose two days, or you start manually rewriting Bicep.
+The original design targeted Azure App Service. At deployment time I simply didn't have App Service quota available in the target subscription. That happens — quota is finite and allocated, and waiting on an increase wasn't how I wanted to spend the next two days. So rather than treat it as a blocker, I pivoted to **Azure Container Apps** — and it turned out to be the better fit for this workload regardless of the quota situation.
 
-Instead, the architecture pivoted to **Azure Container Apps** — a different resource provider (`Microsoft.App`) with separate quota, scale-to-zero, and consumption billing — in a single commit (`switch from App Service to Azure Container Apps`). The Bicep module decomposition (monitoring → storage → keyvault → container-app, in dependency order) made the swap surgical rather than catastrophic:
+Container Apps brought inherent advantages for a containerized onboarding portal:
+
+- **A native container model.** The portal is a Node.js container; Container Apps (`Microsoft.App`) runs it directly, without the App Service container-hosting indirection.
+- **Scale-to-zero and consumption billing.** Onboarding traffic is bursty — heavy during a hiring wave, idle otherwise. Container Apps scales to zero and bills for what runs, instead of an always-on plan I'd pay for around the clock.
+- **KEDA-based autoscaling built in,** so scaling on HTTP concurrency (or a queue, later) is configuration, not custom plumbing.
+- **First-class managed identity + Key Vault references,** which let me drop plaintext secret placeholders entirely (more on the identity direction below).
+
+The pivot itself was surgical because the Bicep was already decomposed in dependency order (monitoring → storage → keyvault → container-app), so swapping the hosting platform was a single commit (`switch from App Service to Azure Container Apps`):
 
 ```bicep
 module containerApp 'modules/container-app.bicep' = {
@@ -118,11 +127,11 @@ module containerApp 'modules/container-app.bicep' = {
 }
 ```
 
-A follow-up two-commit sequence then chased down and fixed a Key Vault circular-dependency issue and switched the Container App secrets to **Key Vault references** resolved at runtime via managed identity — eliminating the last plaintext secret placeholders. The lesson isn't "AI is magic." It's that when your infrastructure is modular Bicep and you have a fast pair-programmer, an architecture constraint discovered at deploy time becomes an afternoon's pivot instead of a sprint's worth of rework.
+A follow-up two-commit sequence then chased down and fixed a Key Vault circular-dependency issue and switched the Container App secrets to **Key Vault references** resolved at runtime via managed identity — eliminating the last plaintext secret placeholders. The lesson isn't "AI is magic." It's that when your infrastructure is modular Bicep and you have a fast pair-programmer, swapping a hosting platform mid-build is an afternoon's work — and sometimes the constraint nudges you toward the architecture you should have picked in the first place.
 
 ## CI/CD: OIDC, Staging Slots, Approval Gates
 
-The automation repo runs three workflows — `validate.yml` (Bicep what-if + lint on PR), `infra.yml` (infrastructure deploy), and `deploy.yml` (app build → staging → smoke test → production). Auth is OIDC throughout:
+The repo ships two workflows — `validate.yml` (Bicep what-if + lint on PR) and `deploy.yml` (infrastructure + app build → staging → smoke test → production). Auth is OIDC throughout:
 
 ```yaml
 permissions:
@@ -138,6 +147,14 @@ steps:
 ```
 
 A subtle but important distinction in this design: the CI/CD identity (the OIDC federated credential GitHub uses to deploy) is **completely separate** from the application identity (the app registration the portal uses to call the Verified ID API). The deploy pipeline can stand up infrastructure; it cannot impersonate the credential-issuing application. The app-deploy chain is gated by named GitHub Environments with required reviewers, so a human approves before production gets a new build.
+
+### Where this is headed: OIDC+SP → UAMI, for the app too
+
+Both of those identities are candidates to move from **OIDC-federated-to-an-app-registration-service-principal** to **OIDC-federated-to-a-User-Assigned-Managed-Identity (UAMI)** — the same migration I'm foreshadowing across this whole series. For the *deploy* identity that's the standard swap: drop the app registration and its client secret, federate the GitHub credential to a UAMI instead, scope it with RBAC.
+
+The more interesting candidate here is the *application* identity. The portal already runs with a managed identity for its Key Vault references — so it's halfway there. The natural next step is to grant the Microsoft Graph and Verifiable Credentials app-role permissions **directly to that UAMI's service principal** (managed identities *are* service principals, and the same `New-MgServicePrincipalAppRoleAssignment` I use for admin consent works against them), then have the app acquire Graph and Verified ID tokens via its managed identity instead of a client secret. That removes the app registration's secret entirely — nothing to store, rotate, or leak.
+
+I'm evaluating that migration for this repo now. The honest caveat: the Verified ID Request Service token path and any `id_token_hint` attestation flow need validation under a managed-identity token before I'd call it done — which is exactly the kind of thing the dedicated UAMI post later in this series will work through end-to-end. It's a clean fit precisely *because* the app already has a managed identity doing half the job.
 
 ## Security Outcomes, Concretely
 
@@ -162,7 +179,7 @@ That's the headline that still surprises people: a complete, OIDC-deployed, FIDO
 1. **Sequence your onboarding trust boundaries.** Proof identity → approve → issue → grant. Each step gates the next, each produces an artifact, the whole chain is logged.
 2. **Script the Entra setup as numbered, idempotent files.** App registration, consent, authority, contract, FIDO2 policy — none of this should live in your memory of which portal buttons you clicked.
 3. **Grant admin consent in code.** `New-MgServicePrincipalAppRoleAssignment` removes the single most-forgotten manual step in app provisioning.
-4. **Keep modules dependency-ordered so pivots stay surgical.** When the landing zone says "zero App Service quota," a clean Bicep decomposition turns a rewrite into a one-module swap.
+4. **Keep modules dependency-ordered so pivots stay surgical.** When you hit a quota wall — or just realize you picked the wrong host — a clean Bicep decomposition turns a platform swap into a one-module change. And Container Apps' scale-to-zero, consumption billing, and native managed identity often make it the better target anyway.
 5. **Separate the deploy identity from the app identity.** The pipeline that builds your infrastructure should not be able to act as your credential-issuing application.
 6. **Make passkeys part of onboarding, not an afterthought.** The cheapest time to go passwordless is before the user ever sets a password.
 

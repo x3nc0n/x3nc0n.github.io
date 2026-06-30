@@ -13,6 +13,8 @@ There's a category of cloud resource that's dangerous precisely because it's *us
 
 I run an AI agent team ("Squad") across my whole demo estate, and it needs both: Security Copilot for SecOps reasoning, an Azure OpenAI model to back the watcher process. So I had to solve the standing-cost and the secret-sprawl problems for real. The answer, in two Spava-Corp repos, is to treat AI capacity the same way I treat everything else — as code, in Bicep, behind OIDC, with the governance decisions visible in PR diffs instead of buried in portal blades.
 
+**A scope note before the technique — this is a lab pattern.** If you're a Microsoft 365 **E5 or E7** customer, Security Copilot is *included* with your license: your tenant gets standing provisioned capacity once the inclusion is rolled out, and you generally shouldn't be hand-provisioning SCUs at all. See [Get started with Microsoft Security Copilot](https://learn.microsoft.com/en-us/copilot/security/get-started-security-copilot) and [the Security Copilot inclusion for E5/E7 tenants](https://learn.microsoft.com/en-us/copilot/security/security-copilot-inclusion); for the capacity models themselves, see [Understand Security Compute Units and capacity](https://learn.microsoft.com/en-us/copilot/security/security-compute-units-capacity). The provision-one-then-zero dance below is for the *other* case: a dev/test lab, a Visual Studio subscription sandbox, or any low-cost environment where you're paying for SCUs directly and want the standing bill at zero between experiments. Read it as a cost-control trick for labs and very-low-budget test estates — not a recommended posture for a licensed production tenant that already has capacity entitled.
+
 ## Provision One, Then Zero
 
 Security Copilot's ARM API has an annoying constraint: `numberOfUnits` has a `@minValue(1)`. You cannot deploy a capacity resource with zero SCUs — the platform requires at least one at creation time. But one SCU running 24/7 is ~$4/hour, ~$2,900/month, for capacity you're using maybe an hour a day. That's the standing-cost trap.
@@ -98,7 +100,7 @@ Both repos also gate deployments behind a `production` GitHub Environment with a
 
 ## What to Steal
 
-1. **Provision-one-then-zero for any minimum-one AI capacity.** Deploy at the floor, PATCH to zero post-deploy, let PAYG overage cover real use. Zero standing cost, zero idle attack surface.
+1. **Provision-one-then-zero for any minimum-one AI capacity *you're paying for directly*.** Deploy at the floor, PATCH to zero post-deploy, let PAYG overage cover real use. Zero standing cost, zero idle attack surface. (If you're E5/E7, your tenant already has Security Copilot capacity included — this trick is for labs and low-budget test estates, not entitled production tenants.)
 2. **Make the cost-control step fail loud.** If the patch-to-zero is rejected, warn — don't silently leave $4/hour running.
 3. **OIDC, not stored secrets, for every pipeline.** A federated trust is scoped and revocable; a leaked credential JSON is a gift to an attacker.
 4. **Encode data residency in code.** `crossGeoCompute: NotAllowed` in Bicep is a real control. The same statement in a compliance doc is a hope.

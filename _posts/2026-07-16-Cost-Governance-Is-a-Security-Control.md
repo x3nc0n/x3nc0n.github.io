@@ -15,6 +15,8 @@ This is why I find the Microsoft reference solution for VM start/stop automation
 
 `Spava-Corp/alz-startstopv2` is my answer: the same automation, but built so the function can do precisely three things — start VMs, stop VMs, read VMs — and nothing else. Its 25-commit history is also one of the better real-world records I have of what it actually takes to ship secure infrastructure through a strict Azure Landing Zone policy regime, with AI iterating through each blocker.
 
+*(A scrubbed, open-source version of this — an independent re-implementation, **not** an official Microsoft solution and provided with no warranty — is on the roadmap. I'll point this post at the public repo once it ships.)*
+
 ## A Custom Role With Exactly Six Actions
 
 The heart of the security argument is this custom role. Instead of Contributor, the Function App's user-assigned managed identity gets a role with six actions — the precise set needed to do its job:
