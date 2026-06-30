@@ -20,25 +20,41 @@
 
 title: Spaid on Security
 email: john@spaid.dev
-description: >- # this means to ignore newlines until "baseurl:"
+description: >-
   Cybersecurity-oriented blog by John Spaid, Customer Experience Leader for Oil, Gas, and Energy at Microsoft
 baseurl: "" # the subpath of your site, e.g. /blog
-url: "https://www.spaid.dev" # the base hostname & protocol for your site, e.g. http://example.com
+url: "https://www.spaid.dev"
 twitter_username: x3nc0n
-github_username:  x3nc0n
+github_username: x3nc0n
+
+# Monday theme settings
+name: Spaid on Security
+tagline: Security | Cloud | Identity
+about_description: >-
+  Cybersecurity-oriented blog by John Spaid, Customer Experience Leader for Oil,
+  Gas, and Energy at Microsoft. Former Police Sergeant and EMT. Principal Technical
+  Specialist focused on Security, Compliance, and Identity.
+blog_theme: dark  # dark or light
+pic: profile.jpg  # 200x200 portrait in assets/img/
+
+# Social handles (used by Monday theme templates)
+twitter: x3nc0n
+github: x3nc0n
+
+# Third-party integrations (leave blank to disable)
+analytics:          # Google Analytics tracking ID
+discus_identifier:  # Disqus shortname
+
 # Build settings
-theme: minima
+# theme: removed — Monday theme is vendored directly
 plugins:
   - jekyll-feed
 
+# Include _pages directory so /blog/ page is processed
+include:
+  - _pages
+
 # Exclude from processing.
-# The following items will not be processed, by default.
-# Any item listed under the `exclude:` key here will be automatically added to
-# the internal "default list".
-#
-# Excluded items can be processed by explicitly listing the directories or
-# their entries' file path in the `include:` list.
-#
 exclude:
   - docs/
   - scripts/

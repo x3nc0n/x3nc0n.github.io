@@ -1,0 +1,43 @@
+---
+layout: default
+---
+
+<div class="home">
+  <div class="page-heading">
+    <h2 class="page-title">About me</h2>
+  </div>
+  <div class="about">
+    <div class="container-face">
+      <img class="face" src="{{ '/assets/img/' | append: site.pic | relative_url }}" alt="{{ site.name | default: site.title }}">
+    </div>
+    <h2 class="tagline">{{ site.tagline | default: "Security Practitioner" }}</h2>
+    <div class="about-description">
+      <p>{{ site.about_description | default: site.description }}</p>
+    </div>
+    <div class="contact-contaiver">
+      <ul class="contact-list">
+
+        {% if site.email %}
+          <li class="email"><a href="mailto:{{ site.email }}"><i class="fa fa-envelope-o"></i> {{ site.email }}</a></li>
+        {% endif %}
+
+        {% if site.website %}
+          <li class="website"><a href="https://{{ site.website }}" target="_blank"><i class="fa fa-globe"></i> {{ site.website }}</a></li>
+        {% endif %}
+
+        {% if site.linkedin %}
+          <li class="linkedin"><a href="https://in.linkedin.com/in/{{ site.linkedin }}" target="_blank"><i class="fa fa-linkedin"></i> linkedin.com/in/{{ site.linkedin }}</a></li>
+        {% endif %}
+
+        {% if site.github_username %}
+          <li class="github"><a href="https://github.com/{{ site.github_username }}" target="_blank"><i class="fa fa-github"></i> github.com/{{ site.github_username }}</a></li>
+        {% endif %}
+
+        {% if site.twitter_username %}
+          <li class="twitter"><a href="https://twitter.com/{{ site.twitter_username }}" target="_blank"><i class="fa fa-twitter"></i> @{{ site.twitter_username }}</a></li>
+        {% endif %}
+
+      </ul>
+    </div>
+  </div>
+</div>
