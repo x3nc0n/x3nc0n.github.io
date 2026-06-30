@@ -16,11 +16,11 @@ Because here's what shifted for me: it's not just that AI can find vulnerabiliti
 
 ## The Thesis
 
-Over the past several months, I rebuilt my cloud security practice around two tools: **GitHub Copilot CLI** (accessible on any Copilot tier — this doesn't require an enterprise seat or premium model access) and the open-source **[Squad framework](https://github.com/bradygaster/squad)** for orchestrating teams of specialized AI agents. Together, they became my engineering team for a full DevSecOps practice built in the open on Azure.
+Over the past month, I rebuilt my cloud security practice around two tools: **GitHub Copilot CLI** and the open-source **[Squad framework](https://github.com/bradygaster/squad)** for orchestrating teams of specialized AI agents. Together, they became my engineering team for a full DevSecOps practice built in the open on Azure.
 
 What I shipped: a complete Azure Landing Zone in Bicep with 21-module CI/CD gating, a detection-as-code pipeline for Microsoft Sentinel, information protection policy deployed as code via Purview, a decentralized identity verification service using Entra Verified ID, a zero-trust edge architecture from Azure Front Door through APIM to a private AKS cluster, IoT/OT security for Azure IoT Operations, AI capacity governance, cost-as-a-control patterns, and a seismic ML pipeline with supply-chain-secure container deployment. All of it version-controlled, all of it CI/CD-gated, all of it passing through human review before it touched production.
 
-That's not a consulting backlog of work I squeezed in over a year. That's several months of evenings and weekends, most of it drafted by AI agents and validated by me.
+That's not a consulting backlog of work I squeezed in over a year. That's **one** month of mostly automated work between meetings and a couple evenings, most of it drafted by AI agents and validated by me.
 
 ## What Actually Changed
 
