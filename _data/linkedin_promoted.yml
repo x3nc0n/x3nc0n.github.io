@@ -1,0 +1,5 @@
+# LinkedIn Promotion Ledger
+# Managed automatically by GitHub Actions — do not edit manually.
+# Each entry records a blog post that has been promoted to LinkedIn.
+# Fields: slug, post_url, promoted_at (ISO-8601 UTC), linkedin_post_id
+---

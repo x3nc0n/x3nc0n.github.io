@@ -37,3 +37,26 @@
 - **Fork/PR safety:** `if:` condition on the job skips fork PRs explicitly; PR runs from same-repo branches get dry-run mode.
 - **No README at repo root** — skip the README section per task spec.
 - **LinkedIn API version pinned to `202506`** (current at time of build).
+
+### 2026-06-29 — Scheduled LinkedIn promotion workflow
+
+**Built:** `promote-scheduled.mjs` script + `promote-to-linkedin-scheduled.yml` workflow + docs update.
+
+**Deliverables created:**
+- `scripts/promote-scheduled.mjs` — Node 20, zero external deps. Scans `_posts/`, checks `linkedin_promote_date` against today in `America/New_York`, reads the dedup ledger, posts due items to the LinkedIn Posts API, appends ledger entries. Supports `--dry-run`. Guard exits 0 if both `LINKEDIN_REFRESH_TOKEN` and `LINKEDIN_ACCESS_TOKEN` are absent.
+- `.github/workflows/promote-to-linkedin-scheduled.yml` — cron `0 12-15 * * 2-4` (8–11 AM ET Tue–Thu); `workflow_dispatch` with boolean `dry_run` input; `permissions: contents: write`; `concurrency: linkedin-scheduled, cancel-in-progress: false`; commits ledger with `[skip ci]` after any successful posts.
+- `docs/linkedin-promotion.md` — added "Scheduled / front-matter-driven promotion" section covering the three front-matter fields, exactly-once cron+ledger mechanism, dry-run via workflow_dispatch, one-time secret setup reference, and GitHub Pages future-dated rollout note.
+
+**Key design decisions:** See `.squad/decisions/inbox/trinity-li-schedule.md`.
+
+**Reviewed:** `2026-06-30-Shipping-Security-at-Machine-Speed.md` (Post 1) and `2026-07-01-Azure-Landing-Zones-as-Code.md` (Post 2).
+
+**Verdict:** APPROVED-WITH-EDITS.
+
+**Redaction pattern learned:** The `post-02-alz.md` research brief contains a `parameters.json` block with real subscription GUIDs and a tenant ID (`ef4ecf0b-...`). The scribe correctly excluded these from the published post — only the management group ASCII tree and sanitized YAML snippets were included. The DO-NOT-PUBLISH list in the brief is the canonical gate; cross-check every research brief for one before approving any ALZ-series post.
+
+**Security baseline confirmed:** All ALZ workflows use OIDC (`azure/login@v2` + `id-token: write`). No `AZURE_CREDENTIALS` JSON appears in any published snippet. This is the standing security pattern for this blog series — if a post ever references Azure auth and shows anything other than OIDC, that's a red flag.
+
+**AI claims framing:** Acceleration claims (e.g., "45 minutes → 10-15 minutes") are personal anecdote, not hard metrics. Acceptable under the audience conventions. The research brief's quotable "10 minutes / verify with John" is a scribe note, not a publication blocker.
+
+**Forward-looking claim to track:** Post 1 references a "14-day dynamic baseline" and ".NET KQL validator" for the Sentinel post. Verify these against the Sentinel research brief when that post is drafted.

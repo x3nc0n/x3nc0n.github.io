@@ -17,6 +17,53 @@ On **pull requests** the script runs in `--dry-run` mode: it prints exactly what
 
 ---
 
+## Scheduled / front-matter-driven promotion
+
+In addition to the on-push workflow, a second workflow (`promote-to-linkedin-scheduled.yml`) runs on a cron and posts any blog posts whose scheduled date has arrived — with no human in the loop.
+
+### Front-matter fields
+
+Add these to any `_posts/YYYY-MM-DD-slug.md` you want auto-promoted:
+
+```yaml
+linkedin_promote: true              # required — opt in; absence means "do not auto-promote"
+linkedin_promote_date: 2026-07-07   # optional — YYYY-MM-DD; promote on or after this date
+linkedin_blurb: "Custom text here." # optional — overrides the auto-generated commentary
+```
+
+| Field | Behaviour when absent |
+|---|---|
+| `linkedin_promote` | Post is ignored by the scheduler |
+| `linkedin_promote_date` | Post is promoted on the next scheduled cron run (Tue/Wed/Thu, 8–11 AM ET) |
+| `linkedin_blurb` | Commentary is auto-built from `title`, `description`, `categories` hashtags, and the canonical URL |
+
+### How the cron and ledger give exactly-once posting
+
+1. The cron fires hourly between **12:00–15:00 UTC (8–11 AM ET) on Tue/Wed/Thu** — the research-backed US peak window.
+2. Each run scans `_posts/` and compares `linkedin_promote_date` against today in `America/New_York`.
+3. Before posting, the script checks `_data/linkedin_promoted.yml` (the ledger). Any slug already in the ledger is skipped.
+4. After a successful LinkedIn post, the script appends `{slug, post_url, promoted_at, linkedin_post_id}` to the ledger and the workflow commits + pushes just that file with a `[skip ci]` message.
+5. Result: a post authored today with `linkedin_promote_date: 2026-07-08` will post automatically at the first cron run on or after July 8 — and never again.
+
+### Dry-run via `workflow_dispatch`
+
+Go to **Actions → Promote to LinkedIn (Scheduled) → Run workflow** and set **Dry run** to `true`. The script will parse all posts, print exactly what would be posted to LinkedIn (including the full commentary), and exit without making any API calls or writing the ledger. Use this to verify blurb, URL, and hashtag output before a scheduled date arrives.
+
+### One-time secret setup
+
+Same secrets as the on-push workflow — see [Step 3 — Set repository secrets](#step-3--set-repository-secrets) below. No additional secrets are required. The scheduled workflow is a safe no-op until the secrets are configured.
+
+### GitHub Pages and future-dated posts
+
+Jekyll only renders a post after a build runs on or after its `date:` front-matter value. There are two clean patterns to avoid a post going live on LinkedIn before it appears on the blog:
+
+- **Recommended:** Set the post `date:` to "now" (when you finish writing) and set `linkedin_promote_date` to the desired future promotion date. The post is live on the blog immediately; LinkedIn gets it on the scheduled date.
+- **Alternative:** Enable a daily GitHub Pages rebuild (e.g., via a scheduled `pages-build-deployment` dispatch) so future-dated posts appear automatically on their date. Then you can let `date:` and `linkedin_promote_date` be the same day.
+
+Keep the two concepts separate: `date:` controls when Jekyll publishes the HTML; `linkedin_promote_date` controls when the scheduler posts the link.
+
+---
+
 ## Step 1 — Create a LinkedIn Developer App
 
 1. Go to [https://www.linkedin.com/developers/apps/new](https://www.linkedin.com/developers/apps/new).

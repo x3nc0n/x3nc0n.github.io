@@ -6,6 +6,7 @@ Standing instructions for anyone (human or AI agent) working in this repository.
 
 When a blog post is authored (or has been authored), follow this workflow **every time**:
 
+0. **Never push posts directly to `main`.** `main` is the live GitHub Pages branch (publishes to https://www.spaid.dev/). Stage post work on a branch (e.g. `blog/<topic>`) and open a **PR to `main`**. The PR is the human approval gate; **merging the PR is what publishes**, and the merged post's front-matter (`date` + `linkedin_promote_date`) dictates the publish/promotion schedule.
 1. **Publish to the blog first.** Add the post under `_posts/YYYY-MM-DD-Title.md` with proper Jekyll front-matter (`layout: post`, `title`, `description`, `categories`). The blog is the source of truth; LinkedIn points back to it.
 2. **Then promote on LinkedIn**, automatically, via the GitHub Actions in this repo (`.github/workflows/promote-to-linkedin.yml` + the scheduled companion). Promotion is driven by post front-matter — no manual posting.
 3. **Schedule for maximum engagement on a US-based audience.** This is the default; don't over-engineer it.
@@ -36,6 +37,18 @@ linkedin_promote_date: 2026-07-07 # optional; defaults to 09:00 ET on this date
 linkedin_blurb: "Optional custom LinkedIn text; otherwise auto-generated."
 ---
 ```
+
+## AI cost transparency (every post)
+
+Every post includes a short **AI cost** section. Keep it **flat and bounded** — no recursion,
+no meta-costs:
+
+- **Source-repo build cost:** take the figure from the source repo's own `COST.md` (or `COSTS.md`),
+  **validate** it (totals vs. line items), and cite it. If a repo has no COST.md, give a clearly
+  labelled estimate.
+- **Blog production cost:** add this blog's own line items — research, writing, review — per the
+  flat model in the repo-root `COST.md` (~$1.00/post by default).
+- Update the repo-root `COST.md` cumulative figures each session.
 
 ## Audience & content conventions
 

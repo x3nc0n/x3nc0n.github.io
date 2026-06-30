@@ -11,3 +11,5 @@ vendor
 .squad/.scratch/
 # Squad: SubSquad activation file (local to this machine)
 .squad-workstream
+# Squad: transient editorial/research artifacts (keep local, not in public PR)
+.squad/files/
