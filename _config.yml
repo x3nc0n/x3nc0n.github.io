@@ -21,7 +21,7 @@
 title: Spaid on Security
 email: john@spaid.dev
 description: >-
-  Cybersecurity-oriented blog by John Spaid, Customer Experience Leader for Oil, Gas, and Energy at Microsoft
+  AI-accelerated DevSecOps, security, cloud, and identity — by John Spaid, Cybersecurity Customer Experience Leader for Oil, Gas, and Energy at Microsoft
 baseurl: "" # the subpath of your site, e.g. /blog
 url: "https://www.spaid.dev"
 twitter_username: x3nc0n
@@ -29,11 +29,17 @@ github_username: x3nc0n
 
 # Monday theme settings
 name: Spaid on Security
-tagline: Security | Cloud | Identity
+tagline: Security | Cloud | Identity | AI
 about_description: >-
-  Cybersecurity-oriented blog by John Spaid, Customer Experience Leader for Oil,
-  Gas, and Energy at Microsoft. Former Police Sergeant and EMT. Principal Technical
-  Specialist focused on Security, Compliance, and Identity.
+  John Spaid is the Cybersecurity Customer Experience Leader for Microsoft's U.S.
+  Oil, Gas, and Energy unit, leading Cloud Solution Architects who help critical
+  infrastructure providers strengthen their security posture across Defender XDR,
+  Purview, Entra, and Azure. He's focused on AI-accelerated DevSecOps — using
+  GitHub Copilot and agentic workflows to ship secure infrastructure at machine
+  speed. A former Police Sergeant and EMT, John brings a mission-driven approach to
+  security, compliance, and identity. He serves on the board of InfraGard Oklahoma
+  and speaks frequently on critical infrastructure protection and cloud security
+  modernization.
 blog_theme: dark  # dark or light
 pic: profile.jpg  # 200x200 portrait in assets/img/
 
