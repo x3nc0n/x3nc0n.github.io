@@ -1,20 +1,20 @@
-# LinkedIn Post Promotion
-# Automatically shares newly published blog posts to the author's LinkedIn personal profile.
+# LinkedIn Post Promotion — PREVIEW ONLY (pull requests)
 #
-# SAFE TO MERGE NOW: the guard step at the top exits 0 if the required secrets are not yet
-# configured, so this workflow is a no-op until you're ready to arm it.
+# This workflow runs ONLY on pull requests and ONLY in --dry-run mode: it prints
+# exactly what would be shared so you can review the commentary/URL before merge.
+# It makes ZERO LinkedIn API calls and never writes the ledger.
 #
-# To arm: follow docs/linkedin-promotion.md and set the required repository secrets.
+# Real posting is owned exclusively by promote-to-linkedin-scheduled.yml, which
+# gates on opt-in (linkedin_promote), due date (linkedin_promote_date), a
+# de-dup ledger, AND a liveness check (the blog post must return HTTP 200).
+# Keeping a single real poster prevents (a) a mass-post when many posts land in
+# one merge and (b) double-posts between two workflows.
+#
+# SAFE TO MERGE: the guard step exits 0 if secrets are not configured.
 
-name: Promote to LinkedIn
+name: Promote to LinkedIn (PR preview)
 
 on:
-  push:
-    branches:
-      - main
-      - master
-    paths:
-      - '_posts/**'
   pull_request:
     branches:
       - main
@@ -31,12 +31,10 @@ jobs:
     name: Share new post on LinkedIn
     runs-on: ubuntu-latest
 
-    # Skip silently on PRs from forks: they have no secret access and the guard handles the
-    # "no credentials" case, but being explicit avoids any misleading log noise.
+    # PR-preview only. Skip PRs from forks (no secret access).
     if: >
-      github.event_name == 'push' ||
-      (github.event_name == 'pull_request' &&
-       github.event.pull_request.head.repo.full_name == github.repository)
+      github.event_name == 'pull_request' &&
+      github.event.pull_request.head.repo.full_name == github.repository
 
     steps:
       - name: Checkout
@@ -132,11 +130,9 @@ jobs:
           LINKEDIN_PERSON_URN: ${{ secrets.LINKEDIN_PERSON_URN }}
           SITE_URL: "https://www.spaid.dev"
         run: |
-          DRY_RUN_FLAG=""
-          if [ "${{ github.event_name }}" = "pull_request" ]; then
-            DRY_RUN_FLAG="--dry-run"
-            echo "Pull request detected — running in dry-run mode (no posts will be made)"
-          fi
+          # This workflow is PR-preview only — always dry-run, never post.
+          DRY_RUN_FLAG="--dry-run"
+          echo "PR preview — running in dry-run mode (no posts will be made)."
 
           while IFS= read -r post_file; do
             [ -z "$post_file" ] && continue

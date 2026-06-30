@@ -1,4 +1,5 @@
 ---
+permalink: /2026/07/15/Governing-AI-Capacity-as-Code.html
 layout: post
 title:  "Governing AI Capacity as Code: Security Copilot and Azure OpenAI"
 description: "Standing AI capacity is both a budget leak and an attack surface. Here's how I deploy Microsoft Security Copilot and Azure OpenAI as Bicep — with a provision-one-then-zero pattern that drops standing cost to zero, OIDC instead of stored secrets, and data residency enforced in code."

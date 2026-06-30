@@ -160,6 +160,29 @@ function derivePostUrl(filePath, siteUrl) {
 }
 
 // ---------------------------------------------------------------------------
+// Liveness gate: verify the blog post is actually published (HTTP 200) before
+// promoting it on LinkedIn. This enforces the hard dependency that a LinkedIn
+// share must never link to a page that is not yet live (e.g., a future-dated
+// post whose Pages rebuild has not run yet). On a non-200 response or any
+// network error we return false so the caller SKIPS the post and retries it on
+// the next scheduled run — the ledger is never written for a post we did not
+// successfully promote.
+// ---------------------------------------------------------------------------
+async function isPostLive(url) {
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), 10000);
+  try {
+    // GET (not HEAD): some CDNs/Pages return inconsistent statuses for HEAD.
+    const res = await fetch(url, { method: 'GET', redirect: 'follow', signal: controller.signal });
+    return res.ok; // true only for 2xx
+  } catch {
+    return false; // timeout, DNS, connection reset, etc. — treat as not live
+  } finally {
+    clearTimeout(timeout);
+  }
+}
+
+// ---------------------------------------------------------------------------
 // Build hashtags from front-matter categories (space-separated list).
 // Max 5 tags; stripped to alphanumeric only.
 // ---------------------------------------------------------------------------
@@ -349,12 +372,16 @@ async function main() {
   console.log('');
 
   if (DRY_RUN) {
-    // Print intended actions and exit — zero API calls, no ledger writes
+    // Print intended actions and exit — no LinkedIn API calls, no ledger writes.
+    // A liveness probe against the public blog is performed (read-only GET) so the
+    // preview reflects whether the post would actually be promoted.
     for (const { filePath, fm, slug } of dueItems) {
       const postUrl = derivePostUrl(filePath, siteUrl);
       const commentary = buildCommentary(fm, postUrl);
+      const live = await isPostLive(postUrl);
       console.log(`=== DRY RUN: ${slug} ===`);
       console.log(`  URL: ${postUrl}`);
+      console.log(`  Blog post live (HTTP 200)? ${live ? 'YES — would promote' : 'NO — would SKIP and retry next run'}`);
       console.log('  Commentary that would be posted:');
       console.log(commentary.replace(/^/gm, '    '));
       console.log(`  Ledger entry that would be written:`);
@@ -405,6 +432,17 @@ async function main() {
 
     console.log(`==> Posting: ${slug}`);
     console.log(`    URL: ${postUrl}`);
+
+    // Liveness gate — never promote a post that is not live on the blog yet.
+    const live = await isPostLive(postUrl);
+    if (!live) {
+      console.log(`    ⏳ SKIP: blog post is not live yet (no HTTP 200 at ${postUrl}).`);
+      console.log('       Leaving it unpromoted; will retry on the next scheduled run.');
+      console.log('');
+      continue;
+    }
+    console.log('    ✓ Blog post is live (HTTP 200) — proceeding to promote.');
+
     console.log('    Commentary:');
     console.log(commentary.replace(/^/gm, '    '));
     console.log('    ---');

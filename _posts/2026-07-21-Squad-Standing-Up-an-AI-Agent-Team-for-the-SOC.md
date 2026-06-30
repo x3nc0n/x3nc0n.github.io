@@ -1,4 +1,5 @@
 ---
+permalink: /2026/07/21/Squad-Standing-Up-an-AI-Agent-Team-for-the-SOC.html
 layout: post
 title:  "Squad: Standing Up an AI Agent Team for the SOC"
 description: "A persistent, auditable AI team for security operations — built by an AI team. Here's the real structure: the .secops/ environment schema, Wire-cast agent charters, severity-based routing, 847 skills, and detection-as-a-GitHub-Issue with KQL validation in CI."

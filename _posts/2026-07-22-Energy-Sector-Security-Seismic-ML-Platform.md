@@ -1,4 +1,5 @@
 ---
+permalink: /2026/07/22/Energy-Sector-Security-Seismic-ML-Platform.html
 layout: post
 title:  "Two AI Squads, One Plaything: An App Team and an Infra Team Shipping Through GitHub Issues"
 description: "The interesting part of my energy-ML demo isn't the seismic — it's that two separate AI agent Squads, one owning the app repo and one owning the infra repo, collaborate entirely through GitHub Issues. Cross-repo deploy requests, a Front Door WAF false positive nobody could fix from the app side, digest-pinned supply chain, and an SP-to-UAMI cutover run as a single owned issue."

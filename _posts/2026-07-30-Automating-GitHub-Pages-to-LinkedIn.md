@@ -1,4 +1,5 @@
 ---
+permalink: /2026/07/30/Automating-GitHub-Pages-to-LinkedIn.html
 layout: post
 title:  "Automating GitHub Pages → LinkedIn: A Copy-Paste Template"
 description: "Every post in this series promoted itself to LinkedIn — on schedule, on US peak hours, with zero manual posting — straight from the post's own front-matter. This is the dogfood post: the whole template, free, no unlimited-Copilot subscription required. A Node script, a scheduled Action, a dedup ledger, and one front-matter line."

@@ -1,4 +1,5 @@
 ---
+permalink: /2026/07/14/Securing-the-Edge-Azure-IoT-Operations.html
 layout: post
 title:  "Securing the Edge: Azure IoT Operations from Device to Cloud"
 description: "OT environments used to be air-gapped and invisible to the SOC. Azure IoT Operations bridges edge to cloud — but deploy it without security controls and your MQTT auth events, OPC UA sessions, and Kubernetes audit logs disappear into the void. Here's how to make visibility a deployment artifact."

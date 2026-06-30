@@ -1,4 +1,5 @@
 ---
+permalink: /2026/07/07/Information-Protection-as-Code.html
 layout: post
 title:  "Information Protection as Code: Automating Data Governance at Scale"
 description: "Data governance dies in the gap between a taxonomy everyone agreed to in a meeting and the portal clicks nobody audits. Here's how treating labels and controls as code — declarative, reviewed, drift-checked — makes governance at scale actually tractable."

@@ -1,4 +1,5 @@
 ---
+permalink: /2026/07/08/Verifiable-Identity-and-Passwordless-Onboarding.html
 layout: post
 title:  "Verifiable Identity and Passwordless Onboarding with Entra Verified ID"
 description: "A full employee onboarding portal built on Entra Verified ID, FIDO2, and manager approval — plus the mid-build pivot from App Service to Container Apps, and why Container Apps was the better fit anyway."

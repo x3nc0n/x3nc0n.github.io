@@ -1,4 +1,5 @@
 ---
+permalink: /2026/07/09/Zero-Trust-Edge-AFD-APIM-AKS.html
 layout: post
 title:  "Zero-Trust Edge: Azure Front Door to APIM to Private AKS"
 description: "Most zero-trust demos have gaps. Here's an edge architecture that closes them — AFD Premium with WAF in Prevention mode, APIM locked to the Front Door instance by header, and AKS with no public IP at all."

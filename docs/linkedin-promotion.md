@@ -64,6 +64,23 @@ Keep the two concepts separate: `date:` controls when Jekyll publishes the HTML;
 
 ---
 
+## Refreshing credentials (no manual curl/gh)
+
+When tokens lapse — the scheduled workflow will log an auth error — run the helper
+instead of repeating the manual dance:
+
+```powershell
+pwsh ./scripts/refresh-linkedin-token.ps1
+```
+
+It opens the browser authorization, exchanges the code, resolves your person URN, and
+writes the GitHub secrets **via stdin** (values never hit your shell history or the
+process table; the client secret is read as a `SecureString`). It auto-detects whether
+your app issues a refresh token (stores `LINKEDIN_REFRESH_TOKEN`) or only an access
+token (stores `LINKEDIN_ACCESS_TOKEN`, ~60-day lifetime — just re-run before expiry).
+
+---
+
 ## Step 1 — Create a LinkedIn Developer App
 
 1. Go to [https://www.linkedin.com/developers/apps/new](https://www.linkedin.com/developers/apps/new).
@@ -167,13 +184,23 @@ Recommended approach: **add a scheduled workflow** that fires every ~6 months as
 
 ## URL derivation note
 
-The script constructs canonical post URLs using Jekyll's default **date** permalink:
+Series posts pin an explicit `permalink:` in their front-matter using Jekyll's
+date pattern:
 
 ```
 /{year}/{month}/{day}/{slug}.html
 ```
 
-where `{slug}` is the filename portion after the date prefix. If you customise `permalink` in `_config.yml` (for example to include `:categories` in the path or to use pretty URLs without `.html`), update `derivePostUrl()` in `scripts/promote-to-linkedin.mjs` to match.
+This is set per-post (not globally) so legacy post URLs are unaffected, and it makes
+the rendered URL, the in-post cross-links, and `derivePostUrl()` all agree. The
+scheduled promoter also performs a **liveness check** (HTTP 200) against this URL and
+will skip + retry a post until the blog page is actually live — so a LinkedIn share
+never links to a 404. A daily `rebuild-pages.yml` Action triggers a Pages build each
+morning (before the promotion window) so future-dated posts go live on their date.
+
+> **Posting is owned by the scheduled workflow only.** `promote-to-linkedin.yml` runs
+> on pull requests in dry-run mode as a **preview** (it makes zero API calls). This
+> prevents a mass-post when many posts land in a single merge, and avoids double-posts.
 
 ---
 

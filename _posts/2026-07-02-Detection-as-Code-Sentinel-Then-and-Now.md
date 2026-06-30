@@ -1,4 +1,5 @@
 ---
+permalink: /2026/07/02/Detection-as-Code-Sentinel-Then-and-Now.html
 layout: post
 title:  "Detection-as-Code: Sentinel CI/CD, Then and Now"
 description: "In 2021 I wrote Sentinel detections by typing KQL into a browser and hitting save. In 2026 every rule is Bicep, syntax-validated in CI, and deployed over OIDC. Here's the contrast — and what AI changed."

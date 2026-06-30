@@ -1,4 +1,5 @@
 ---
+permalink: /2026/07/01/Azure-Landing-Zones-as-Code.html
 layout: post
 title:  "Azure Landing Zones as Code: Governing the Cloud at Machine Speed"
 description: "How I rebuilt enterprise Azure governance as Bicep IaC with per-module what-if gating, OIDC, and an AI pair-programmer."

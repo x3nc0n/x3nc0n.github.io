@@ -1,4 +1,5 @@
 ---
+permalink: /2026/06/30/Shipping-Security-at-Machine-Speed.html
 layout: post
 title:  "Shipping Security at Machine Speed: My AI-Accelerated DevSecOps Journey"
 description: "Kicking off a series on rebuilding a security + cloud practice around AI agents — and shipping real DevSecOps at a pace that wasn't possible before."
