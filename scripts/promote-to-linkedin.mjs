@@ -93,7 +93,14 @@ function buildHashtags(categories) {
 // ---------------------------------------------------------------------------
 // Compose the LinkedIn post text
 // ---------------------------------------------------------------------------
-function buildCommentary(title, description, url, categories) {
+function buildCommentary(fm, url) {
+  if (fm.linkedin_blurb) {
+    return `${fm.linkedin_blurb}\n\n🔗 ${url}`;
+  }
+
+  const title = fm.title || '';
+  const description = fm.description || '';
+  const categories = fm.categories || '';
   const hashtags = buildHashtags(categories);
   const lines = ['New post on Spaid on Security:', '', title];
   if (description) lines.push('', description);
@@ -204,9 +211,8 @@ async function main() {
   const fm = parseFrontMatter(content);
   const title = fm.title || basename(POST_FILE);
   const description = fm.description || '';
-  const categories = fm.categories || '';
   const url = derivePostUrl(POST_FILE, siteUrl);
-  const commentary = buildCommentary(title, description, url, categories);
+  const commentary = buildCommentary(fm, url);
 
   if (DRY_RUN) {
     console.log('=== DRY RUN — no API calls will be made ===');
