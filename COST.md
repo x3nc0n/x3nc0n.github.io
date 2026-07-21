@@ -36,7 +36,7 @@ The post's total cost line = **source-repo build cost (from that repo's COST.md)
 | Writing (15 posts, incl. a re-run after a failed batch) | ~17 runs | ~$5       |
 | Review / editorial + security redaction passes   | ~4 runs         | ~$2       |
 | Automation build (LinkedIn on-push + scheduled, incl. one retry) | ~3 runs | ~$3 |
-| **Estimated campaign total to date**             |                 | **~$19**  |
+| **Estimated campaign total to date**             |                 | **~$20**  |
 
 _Updated each session as the campaign progresses._
 
@@ -54,3 +54,4 @@ _Updated each session as the campaign progresses._
 | Date (ET)  | Session focus                                              | Est. AI cost |
 |------------|------------------------------------------------------------|--------------|
 | 2026-06-29 | Series setup, research (14 briefs), posts 1–6, LinkedIn automation, cost tooling | ~$19 |
+| 2026-07-21 | Dd Budiharto promotion post, schedule reshuffle, review | ~$1 |

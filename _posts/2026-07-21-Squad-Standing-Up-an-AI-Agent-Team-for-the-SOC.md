@@ -139,4 +139,4 @@ The most interesting thing about this kit is that its commit history *is* the AI
 
 The Glasswing post made the case that an AI team could do SecOps. This is what it looks like wired up for real: an environment schema, charters with boundaries, severity routing, GitHub-native intake, KQL validation in CI, and 847 skills of compressed expertise — built, auditably, by the very kind of team it helps you stand up.
 
-*Next: taking all of this to the energy sector — a cloud-native seismic ML platform built end-to-end by an AI agent team for under $40 in tokens.*
+*Next: a quick detour to the energy sector's IT/OT reality — why my colleague Dd Budiharto keeps insisting that before you modernize anything, you fix the foundation first.*
