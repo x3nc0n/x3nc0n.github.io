@@ -254,6 +254,47 @@ Both posts approved for publication. One minor voice edit to Post 2. No redactio
 
 ---
 
+### Trinity Review — Midnight Blizzard Device Code Phishing Post (2026-08-03)
+
+**Reviewer:** Trinity | **Post:** `2026-08-04-Stopping-Midnight-Blizzard-Device-Code-Phishing.md` | **Status:** APPROVED-WITH-EDITS
+
+#### Verdict
+Post approved for publication with one required edit, made directly by Trinity.
+
+#### Edit Made
+- **Unverifiable specific date removed.** Original text: `"In a July 31, 2026 update, Microsoft assessed Storm-2372 as a Midnight Blizzard initial-access operations sub-cluster..."` — changed to `"Microsoft has since assessed Storm-2372 as a Midnight Blizzard initial-access operations sub-cluster..."`. Specific future-dated Intel assessment dates must not ship without a citable public source.
+
+#### Redaction Issues Found
+**None.** Restaurant-owner anecdote is fully anonymized: no name, restaurant name, location, or specific dates. No tenant IDs, subscription IDs, or credentials present.
+
+#### Accuracy Verified
+- Storm-2372 / Midnight Blizzard / APT29 / NOBELIUM / SVR attribution chain ✓
+- Device code OAuth flow mechanics (device_code, 15-min expiry, token polling) ✓
+- PRT escalation path via Authentication Broker + DRS registration (Feb 2025 technique) ✓
+- Conditional Access block recommendation — "compliant device" unsupported for device code flows ✓
+- Refresh token default lifetime (90 days), rotation behavior ✓
+- MAGICWEB context properly scoped ("was not a device code payload, but...") ✓
+- Attack Disruption framing: under-18-min interactive eviction accurately bounded; post explicitly disclaims dwell-time gap and persistence hunting requirement ✓
+
+#### KQL Check
+| Query | Table | Key operators | Status |
+|---|---|---|---|
+| Device code inventory | `SigninLogs` | `make_set`, `summarize`, `order by` | ✓ |
+| Alert on unapproved use | `SigninLogs` | `datatable`, `!in~`, `ResultType == "0"` | ✓ |
+| Device registration hunt | `CloudAppEvents` | `parse_json`, `tostring`, `project` | ✓ (property-order caveat included) |
+
+#### Front Matter Check
+| Field | Value | Day | Valid |
+|---|---|---|---|
+| `linkedin_promote_date` | `2026-08-04` | Tuesday | ✓ |
+| `layout` | `post` | — | ✓ |
+| `linkedin_promote` | `true` | — | ✓ |
+
+#### Series Arc
+References `Squad: Standing Up an AI Agent Team for the SOC` as an outbound pointer; no content duplication. Original synthesis. ✓
+
+---
+
 ## Governance
 
 - All meaningful changes require team consensus
