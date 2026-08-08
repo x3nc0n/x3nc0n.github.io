@@ -137,7 +137,7 @@ The response contains:
 
 ```bash
 curl -H "Authorization: Bearer YOUR_ACCESS_TOKEN" \
-     -H "LinkedIn-Version: 202506" \
+     -H "LinkedIn-Version: 202607" \
      https://api.linkedin.com/v2/userinfo
 ```
 

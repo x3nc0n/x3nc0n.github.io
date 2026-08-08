@@ -5,7 +5,7 @@ title:  "Cost Governance Is a Security Control"
 description: "Microsoft's reference solution for VM start/stop automation wants Contributor on every subscription. That's not a governance gap — it's a lateral-movement path. Here's how a tag-based scheduler with a 6-action custom role proves that FinOps and SecOps are the same discipline."
 categories: security devsecops azure finops rbac bicep functions
 linkedin_promote: true
-linkedin_promote_date: 2026-07-16
+linkedin_promote_date: 2026-08-11
 ---
 
 # Cost Governance Is a Security Control
