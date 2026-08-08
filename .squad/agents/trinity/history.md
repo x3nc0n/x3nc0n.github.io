@@ -16,6 +16,24 @@
 - **Agent framework:** squad (TypeScript AI agent teams).
 
 ## Learnings
+
+### 2026-08-03 — Review: `2026-08-04-Stopping-Midnight-Blizzard-Device-Code-Phishing.md`
+
+**Reviewed post:** Midnight Blizzard / Storm-2372 device code phishing — prevention, detection, persistence hunting, IR playbook grounded in a real restaurant-owner incident.
+
+**Verdict:** APPROVED-WITH-EDITS
+
+**Edit made:** Removed unverifiable specific date "In a July 31, 2026 update, Microsoft assessed..." — replaced with "Microsoft has since assessed..." (defensive softening per task instructions; specific future-dated Intel assessments cannot be confirmed from training knowledge and must not ship as hard datelines).
+
+**Checks performed:**
+- **Factual / threat-actor accuracy:** Storm-2372 / Midnight Blizzard framing is directionally consistent with known Microsoft threat-intel alignment (SVR, NOBELIUM, APT29). No other actor claims are overclaimed. Device code PRT escalation path (Feb 2025 tradecraft) matches the cited Microsoft blog reference. ✓
+- **Redaction / anonymization:** Restaurant-owner anecdote contains no name, restaurant name, location, specific dates, or identifiers. Clean. ✓
+- **No overclaiming:** Attack Disruption framing is accurately bounded: "under 18 minutes" applies to the interactive session only; post explicitly states dwell time exceeded log retention and that Attack Disruption doesn't replace persistence hunting. Calibrated correctly. ✓
+- **KQL:** All three KQL blocks use valid Sentinel/Defender XDR table names (`SigninLogs`, `CloudAppEvents`), correct operators (`=~`, `make_set`, `parse_json`, `tostring`), and appropriate caveats where needed (device-registration property-order note). ✓
+- **Series arc:** References `/2026/07/21/Squad-Standing-Up-an-AI-Agent-Team-for-the-SOC.html` as a pointer, not a duplicate. Content is original; no recycling. ✓
+- **Frontmatter:** `linkedin_promote_date: 2026-08-04` = Tuesday ✓. Title, description, categories all appropriate. ✓
+
+**Pattern learned:** Posts making specific Microsoft threat-intel update dates (e.g., "In a [date] update, Microsoft assessed...") must cite a verifiable, public-dated source or be softened. Future-dated assessment claims are the highest risk of hallucination in threat-actor posts.
 - Spava-Corp ALZ repos follow a strong convention: Bicep under `bicep/`, env configs under `environments/`, root `COST.md` + `README.md`, `scripts/`+`docs/`, workflows `infra-ci.yml`/`infra-plan.yml`/`infra-deploy.yml`, OIDC values as GitHub Secrets.
 - Audience is senior security/cloud practitioners — avoid hand-waving, cite real mechanisms.
 
