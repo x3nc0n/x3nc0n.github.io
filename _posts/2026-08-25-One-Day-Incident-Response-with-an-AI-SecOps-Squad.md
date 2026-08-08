@@ -1,11 +1,11 @@
 ---
-permalink: /2026/08/11/One-Day-Incident-Response-with-an-AI-SecOps-Squad.html
+permalink: /2026/08/25/One-Day-Incident-Response-with-an-AI-SecOps-Squad.html
 layout: post
 title:  "How I Ran a Full Incident Response for a Restaurant in Less Than a Day"
 description: "A real-world, privacy-scrubbed account of using an AI SecOps Squad to investigate a privileged cloud identity compromise, correct the initial theory, and deliver a reviewed incident report in less than one day."
 categories: security incident-response ai-agents secops entra defender threat-hunting
 linkedin_promote: true
-linkedin_promote_date: 2026-08-11
+linkedin_promote_date: 2026-08-25
 linkedin_blurb: "A friend who runs a restaurant needed a real incident response, not a chatbot summary. I used my open-source SecOps Squad to collect and reconcile cloud evidence in parallel, challenge its own first theory, and deliver a reviewed IR report in less than a day. The case is a practical example of why defenders need AI-accelerated workflows to meet AI-era threats."
 ---
 
@@ -29,6 +29,8 @@ Once I had working read access, I used my open-source [SecOps Squad Starter Kit]
 I am publishing this with the owner's permission. I have removed or generalized the restaurant's name, tenant and subscription IDs, domains, user names, device IDs, session IDs, IP addresses, partner names, application IDs, and other details that could identify the organization. Counts are rounded where precision is not necessary to explain the lesson.
 
 The important part is not the customer's identity. It is the defensive operating model.
+
+This is the case study. A companion post will turn the device-code findings into a reusable prevention, detection, and persistence-hunting playbook.
 
 ## The Finding in One Paragraph
 
