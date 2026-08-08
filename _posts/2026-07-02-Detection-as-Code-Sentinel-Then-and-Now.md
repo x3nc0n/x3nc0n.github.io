@@ -124,7 +124,7 @@ steps:
 
 Compare that to the 2021 `secrets.AZURE_SENTINEL_CREDENTIALS_<guid>` JSON blob. The blast radius of a leaked OIDC config is "nothing persists"; the blast radius of a leaked SP JSON is "someone has standing access to my Sentinel workspace until I notice."
 
-And critically: **every detection change is now a pull request.** Bad KQL can't reach production without passing the syntax validator and getting reviewed. In 2021, "code review for a detection rule" wasn't even a concept I had.
+And critically: **every detection change is now a pull request.** Bad KQL can't reach production without passing the syntax validator and getting reviewed. In 2021, if anything, I would write a rule in the portal or the Analytics Rule wizard to validate the KQL and results, and then I would have had to switch gears and go create the YAML to add it to a CI/CD repo later. Usually, I just changed the rule live because of how much work it was to do CI/CD.
 
 ## Then vs Now, on One Page
 
@@ -142,11 +142,11 @@ And critically: **every detection change is now a pull request.** Bad KQL can't 
 
 ## The AI Angle: Where the Agents Earned Their Keep
 
-The entire Phase 1 Entra ID + UEBA content hub — the Bicep, the KQL, the MITRE annotations, the playbook triage HTML — was authored in a **single session** by a Squad of AI agents (Dillon, Dutch, Hawkins, and Mac, if you're curious about the cast) and committed as `Phase 1 Content Hub deployment: Entra ID + UEBA`.
+The entire Phase 1 Entra ID + UEBA content hub — the Bicep, the KQL, the MITRE annotations, the playbook triage HTML — was authored in a **single session** by a Squad of AI agents and committed as `Phase 1 Content Hub deployment: Entra ID + UEBA`.
 
-Be clear about what that does and doesn't mean. It does **not** mean "AI invented novel detections." The privileged-user-new-country pattern, MFA-fatigue detection, token-reuse hunting — these are established techniques. What AI did was collapse the distance between "I know I want a 14-day baseline new-country detection with proper entity mappings and a leftanti join" and "here is syntactically valid, MITRE-tagged, idempotent Bicep that deploys it." The custom `KqlSyntaxValidator.cs` is a nice example: writing a Kusto-SDK console app from scratch is a 30–45 minute yak-shave; describing what I wanted and reviewing the result took a fraction of that.
+Be clear about what that does and doesn't mean. It does **not** mean "AI invented novel detections." The privileged-user-new-country pattern, MFA-fatigue detection, token-reuse hunting — these are established techniques. What AI did was collapse the distance between "I know I want a 14-day baseline new-country detection with proper entity mappings and a leftanti join" and "here is syntactically valid, MITRE-tagged, idempotent Bicep that deploys it." The custom `KqlSyntaxValidator.cs` is a nice example: writing a Kusto-SDK console app from scratch would be very time consuming and outside my skillset; describing what I wanted and reviewing the result took a fraction of that time and skill.
 
-The judgment stayed with me. *Which* roles count as privileged? Is a 14-day baseline right, or does it need to be 30 for a low-traffic tenant? Should the MFA-fatigue threshold be three denials or five? Those are security calls, and I made every one of them. The agents generated; I decided.
+The judgment stayed with me. *Which* roles count as privileged? Is a 14-day baseline right, or does it need to be 7? Should the MFA-fatigue threshold be three denials or five? Those are security calls, and I made every one of them. The agents generated; I decided.
 
 ## What This Cost to Build (and Write)
 
@@ -155,7 +155,7 @@ Keeping with the transparency standard for this series:
 - **Source build cost (`alz-sentinel`):** This repo doesn't track a `COST.md`, so this is a labeled **estimate**: roughly **$20–40** in AI agent tokens. A four-agent Squad delivered the Phase 1 Entra ID + UEBA content hub — a KQL validator, a bash deploy helper, a 9-category deploy pipeline, and three Bicep content files — in essentially one focused session. Medium-large scope, single session.
 - **This post's production:** ~**$1.00** — research brief (~$0.40), drafting (~$0.30), and editorial/redaction review (~$0.30), at roughly Sonnet-class rates. The "then vs now" framing required cross-referencing my 2021 posts against the 2026 repo, which is the bulk of the research line.
 
-I track these because if I'm going to claim AI accelerates security engineering, I should be willing to show the bill. (And no — I don't count the cost of writing the cost section. That way lies madness.)
+I track these because if I'm going to claim AI accelerates security engineering, I should be willing to show the bill.
 
 ## What to Steal
 

@@ -12,9 +12,9 @@ linkedin_promote_date: 2026-07-01
 
 Most enterprise Azure environments are governed by good intentions and accumulated regret. Someone clicked through the portal to stand up a resource "real quick" six months ago, and now that resource exists in a configuration nobody fully understands, attached to an RBAC assignment nobody remembers granting, with no audit trail for any of it. Multiply that by a hundred engineers over two years and you have an environment that you can describe but can't reliably reproduce, can't safely modify, and can't audit with confidence.
 
-I've been rebuilding my demo org's Azure environment from scratch using Azure Landing Zones as Code — Bicep, not Terraform, backed by a GitHub Actions CI/CD pipeline with per-module what-if gating, OIDC authentication, and a shared reusable workflow library. And I had an AI pair-programmer doing a meaningful chunk of the heavy lifting.
+I've been rebuilding my demo org's Azure environment from scratch using Azure Landing Zones as Code — Bicep, backed by a GitHub Actions CI/CD pipeline with per-module what-if gating, OIDC authentication, and a shared reusable workflow library. And I had an AI pair-programmer doing a meaningful chunk of the heavy lifting.
 
-Here's the architecture, the security design choices, and the honest story about where AI actually accelerated the work.
+Here's the architecture, the security design choices, and where AI actually accelerated the work.
 
 ## The ALZ Foundation: Management Groups and Policy at Scale
 
@@ -41,7 +41,7 @@ The Bicep template tree mirrors this hierarchy exactly — one folder per manage
 
 The `templates/core/governance/lib/alz/` directory contains 100+ policy definitions from the ALZ reference implementation: `Deny-MgmtPorts-From-Internet`, `Deny-AppGW-Without-WAF`, `Deny-CognitiveServices-NetworkAcls`, `Deny-MachineLearning-PublicAccessWhenBehindVnet`, and on. These are Deny and Audit effects applied at management group scope — they're not suggestions. The landing zone enforces them on every subscription beneath the scope, including workload subscriptions you haven't deployed yet.
 
-This is the point of the "landing zone → workload" model. The ALZ layer sets the guardrails. A workload team deploys their app into the `sc-landingzones-online` subscription and the policies are already there, already active. They can't accidentally expose a management port to the internet from inside their subscription because the policy won't allow the resource to be created.
+This is the point of the "landing zone → workload" model. The ALZ layer sets the guardrails. A workload team deploys their app into the `sc-landingzones-online` subscription (or Corp, if the workload needs a traditional corporate LAN connection) and the policies are already there, already active. They can't accidentally expose a management port to the internet from inside their subscription because the policy won't allow the resource to be created.
 
 ## The CI/CD Design: What-If Gating That Actually Scales
 
@@ -139,24 +139,24 @@ Every deploy step authenticates via OIDC federated identity:
 
 The `id-token: write` permission on the calling job is what makes this work. GitHub mints a short-lived OIDC token for the workflow run; Azure's federated identity validates it against the configured subject claim; the workflow gets an ephemeral bearer token scoped to the target subscription. Nothing gets stored. There's no `AZURE_CREDENTIALS` JSON blob sitting in your repo secrets that, if leaked, gives someone persistent access to your Azure subscriptions.
 
-If you're still using service principal JSON credentials in GitHub Actions for Azure deployments, please stop. OIDC is available on the free tier. The migration is a two-hour project. The credential-leak blast radius reduction is not incremental — it's categorical.
+If you're still using service principal JSON credentials in GitHub Actions for Azure deployments, please stop. OIDC is available on the free tier. The migration is a two-hour project, which I'll cover in a later post.
 
 ## The AI Angle: Where Copilot Actually Helped
 
-Here's the concrete version. The per-module path-filter CI logic — the YAML anchor pattern, the `_shared: &shared` structure, the 21 module gates — was authored with GitHub Copilot in the CLI. So was the CD bash path-detection script that runs `git diff --name-only` and constructs the module gate matrix. The `alz-mgmt-templates` reusable action library architecture itself — composite actions for `bicep-installer`, `bicep-variables`, `bicep-deploy`, plus the two reusable workflow templates — was built with Copilot pair-programming throughout.
+The per-module path-filter CI logic — the YAML anchor pattern, the `_shared: &shared` structure, the 21 module gates — was authored with GitHub Copilot in the CLI. So was the CD bash path-detection script that runs `git diff --name-only` and constructs the module gate matrix. The `alz-mgmt-templates` reusable action library architecture itself — composite actions for `bicep-installer`, `bicep-variables`, `bicep-deploy`, plus the two reusable workflow templates — was built with Copilot pair-programming throughout.
 
 The commit history shows `Co-authored-by: Copilot` on the most recent CI/CD work. This is what I mean when I say AI accelerates the work: not "AI wrote the whole thing," but "AI wrote the bash path-detection script while I focused on the module gating logic." The kind of repetitive-but-must-be-correct scaffolding that eats 45 minutes of careful manual construction took 10-15 minutes of iterating with Copilot. The design decisions were still mine. The security review was still mine. But the boilerplate wasn't.
 
 ## What This Cost to Build (and Write)
 
-A through-line of this series is putting a real number on the AI build cost of every repo, drawn from each repo's `COST.md` where one exists. The two repos in scope here are the landing zone itself — `alz-mgmt` (the 21-module Bicep tree with path-filtered CI/CD) and `alz-mgmt-templates` (the shared reusable-workflow library). Neither tracks a `COST.md` yet, so this is an honest, labeled estimate rather than a tracked receipt:
+A through-line of this series is putting a real number on the AI build cost of every repo, drawn from each repo's `COST.md` where one exists. The two repos in scope here are the landing zone itself — `alz-mgmt` (the 21-module Bicep tree with path-filtered CI/CD) and `alz-mgmt-templates` (the shared reusable-workflow library). I wasn't yet tracking my costs using a `COST.md` yet, so this is an estimate rather than a tracked receipt:
 
 - **alz-mgmt: ~$60–120 (estimated).** The deeper of the two — the management-group hierarchy, 100+ policy assignments wired to scope, the 21-module Bicep tree, and the path-filtered CI/CD. The path-filter YAML anchor pattern and the CD bash diff logic were the costliest AI-assisted pieces.
 - **alz-mgmt-templates: ~$20–40 (estimated).** The composite actions (`bicep-installer`, `bicep-variables`, `bicep-deploy`) and the two reusable workflow templates, built alongside `alz-mgmt` in the same sessions.
 
 **Source build cost: roughly $80–160 (estimated)** across the two landing-zone repos. Neither tracks a `COST.md` yet, so treat this as a directional estimate, not a receipt. These are AI *build* costs — LLM tokens to generate the IaC and pipelines — **not** Azure runtime costs, which are a separate bill I keep separate in every post.
 
-Producing this post itself ran the usual flat **~$1.00** (research, drafting, review). And per the rule I hold all series: I don't count the cost of writing this cost section. No recursion.
+Producing this post itself ran the usual flat **~$1.00** (research, drafting, review).
 
 ## What to Steal from This
 

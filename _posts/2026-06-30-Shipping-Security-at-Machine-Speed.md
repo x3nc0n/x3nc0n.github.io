@@ -12,15 +12,15 @@ linkedin_promote_date: 2026-06-30
 
 A few months ago I wrote about [Project Glasswing](https://www.spaid.dev/security/ai/microsoft/anthropic/vulnerability-management/2026/05/02/Project-Glasswing-and-Mythos.html) — Anthropic's frontier AI model hunting and finding zero-days that sat undetected for decades. My thesis there was that autonomous AI had collapsed the asymmetry between attacker and defender, and that organizations needed agent-team architectures to have any hope of keeping up. That post was about the threat landscape and what it *implies*. This series is about what I actually *did* about it.
 
-Because here's what shifted for me: it's not just that AI can find vulnerabilities faster than humans. It's that AI can *build* security infrastructure faster, *write* detection logic faster, *govern* identity and data policy faster — and if you set it up right, with human oversight at the decision layer, the output is better than what most teams ship manually. I know because I spent the last several months rebuilding my security and cloud engineering practice around exactly this model, and I have the commits to prove it.
+Because here's what shifted for me: it's not just that AI can find vulnerabilities faster than humans. It's that AI can *build* security infrastructure faster, *write* detection logic faster, *govern* identity and data policy faster — and if you set it up right, with human oversight at the decision layer, the output is better than what most teams ship manually. I know because I spent the last month rebuilding my security and cloud engineering practice around exactly this model, and I have the commits to prove it.
 
 ## The Thesis
 
-Over the past several months, I rebuilt my cloud security practice around two tools: **GitHub Copilot CLI** (accessible on any Copilot tier — this doesn't require an enterprise seat or premium model access) and the open-source **[Squad framework](https://github.com/bradygaster/squad)** for orchestrating teams of specialized AI agents. Together, they became my engineering team for a full DevSecOps practice built in the open on Azure.
+Over the past month, I rebuilt my cloud security practice around two tools: **GitHub Copilot CLI** and the open-source **[Squad framework](https://github.com/bradygaster/squad)** for orchestrating teams of specialized AI agents. Together, they became my engineering team for a full DevSecOps practice built in the open on Azure.
 
 What I shipped: a complete Azure Landing Zone in Bicep with 21-module CI/CD gating, a detection-as-code pipeline for Microsoft Sentinel, information protection policy deployed as code via Purview, a decentralized identity verification service using Entra Verified ID, a zero-trust edge architecture from Azure Front Door through APIM to a private AKS cluster, IoT/OT security for Azure IoT Operations, AI capacity governance, cost-as-a-control patterns, and a seismic ML pipeline with supply-chain-secure container deployment. All of it version-controlled, all of it CI/CD-gated, all of it passing through human review before it touched production.
 
-That's not a consulting backlog of work I squeezed in over a year. That's several months of evenings and weekends, most of it drafted by AI agents and validated by me.
+That's not a consulting backlog of work I squeezed in over a year. That's **one** month of mostly automated work between meetings and a couple evenings, most of it drafted by AI agents and validated by me.
 
 ## What Actually Changed
 
