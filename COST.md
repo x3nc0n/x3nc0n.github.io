@@ -32,11 +32,11 @@ The post's total cost line = **source-repo build cost (from that repo's COST.md)
 
 | Phase                                            | Runs            | Est. cost |
 |--------------------------------------------------|-----------------|-----------|
-| Research (3 topic clusters + cost collection)    | 4 agent runs    | ~$9       |
-| Writing (15 posts, incl. a re-run after a failed batch) | ~17 runs | ~$5       |
-| Review / editorial + security redaction passes   | ~4 runs         | ~$2       |
+| Research (topic clusters, cost collection, restaurant IR evidence) | ~5 runs | ~$9.40 |
+| Writing (16 posts, incl. a re-run after a failed batch) | ~18 runs | ~$5.30 |
+| Review / editorial + security redaction passes   | ~5 runs         | ~$2.30 |
 | Automation build (LinkedIn on-push + scheduled, incl. one retry) | ~3 runs | ~$3 |
-| **Estimated campaign total to date**             |                 | **~$19**  |
+| **Estimated campaign total to date**             |                 | **~$20**  |
 
 _Updated each session as the campaign progresses._
 
@@ -54,3 +54,4 @@ _Updated each session as the campaign progresses._
 | Date (ET)  | Session focus                                              | Est. AI cost |
 |------------|------------------------------------------------------------|--------------|
 | 2026-06-29 | Series setup, research (14 briefs), posts 1–6, LinkedIn automation, cost tooling | ~$19 |
+| 2026-08-08 | Restaurant IR post: evidence review, drafting, security redaction | ~$1 |
