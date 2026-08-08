@@ -34,6 +34,7 @@ const __dirname = dirname(fileURLToPath(import.meta.url));
 const REPO_ROOT = join(__dirname, '..');
 
 const DRY_RUN = process.argv.includes('--dry-run');
+const LINKEDIN_API_VERSION = '202607';
 
 // ---------------------------------------------------------------------------
 // Guard: exit 0 gracefully if no LinkedIn credentials are configured.
@@ -251,7 +252,7 @@ async function resolvePersonUrn(accessToken) {
   const res = await fetch('https://api.linkedin.com/v2/userinfo', {
     headers: {
       Authorization: `Bearer ${accessToken}`,
-      'LinkedIn-Version': '202506',
+      'LinkedIn-Version': LINKEDIN_API_VERSION,
     },
   });
 
@@ -266,7 +267,7 @@ async function resolvePersonUrn(accessToken) {
 }
 
 // ---------------------------------------------------------------------------
-// Post to LinkedIn using the Posts API (version 202506).
+// Post to LinkedIn using the Posts API.
 // Returns the new post URN from the X-RestLi-Id response header.
 // ---------------------------------------------------------------------------
 async function postToLinkedIn(accessToken, authorUrn, commentary) {
@@ -288,7 +289,7 @@ async function postToLinkedIn(accessToken, authorUrn, commentary) {
     headers: {
       Authorization: `Bearer ${accessToken}`,
       'Content-Type': 'application/json',
-      'LinkedIn-Version': '202506',
+      'LinkedIn-Version': LINKEDIN_API_VERSION,
       'X-Restli-Protocol-Version': '2.0.0',
     },
     body: JSON.stringify(payload),
@@ -442,6 +443,7 @@ async function main() {
   console.log('');
 
   // Post each due item
+  const failedSlugs = [];
   for (const { filePath, fm, slug } of dueItems) {
     const postUrl = derivePostUrl(filePath, siteUrl);
     const commentary = buildCommentary(fm, postUrl);
@@ -467,9 +469,9 @@ async function main() {
     try {
       postId = await postToLinkedIn(accessToken, personUrn, commentary);
     } catch (e) {
-      // Log and continue — don't abort the whole run because one post failed
       console.error(`    ERROR: ${e.message}`);
       console.error(`    Skipping ledger write for ${slug}; will retry on next scheduled run.`);
+      failedSlugs.push(slug);
       continue;
     }
 
@@ -485,6 +487,12 @@ async function main() {
     console.log(`    Ledger entry written:`);
     console.log(written.replace(/^/gm, '      '));
     console.log('');
+  }
+
+  if (failedSlugs.length > 0) {
+    throw new Error(
+      `${failedSlugs.length} LinkedIn promotion(s) failed: ${failedSlugs.join(', ')}`
+    );
   }
 }
 
