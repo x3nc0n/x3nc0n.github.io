@@ -24,6 +24,7 @@ import { basename } from 'node:path';
 
 const DRY_RUN = process.argv.includes('--dry-run');
 const POST_FILE = process.argv.slice(2).find(a => !a.startsWith('--'));
+const LINKEDIN_API_VERSION = '202607';
 
 if (!POST_FILE) {
   console.error('Usage: node scripts/promote-to-linkedin.mjs [--dry-run] <post-file>');
@@ -136,7 +137,7 @@ async function resolvePersonUrn(accessToken) {
   const res = await fetch('https://api.linkedin.com/v2/userinfo', {
     headers: {
       Authorization: `Bearer ${accessToken}`,
-      'LinkedIn-Version': '202506',
+      'LinkedIn-Version': LINKEDIN_API_VERSION,
     },
   });
 
@@ -151,7 +152,7 @@ async function resolvePersonUrn(accessToken) {
 }
 
 // ---------------------------------------------------------------------------
-// Post to LinkedIn using the Posts API (version 202506)
+// Post to LinkedIn using the Posts API
 // Returns the new post URN from the X-RestLi-Id response header.
 // ---------------------------------------------------------------------------
 async function postToLinkedIn(accessToken, authorUrn, commentary) {
@@ -173,7 +174,7 @@ async function postToLinkedIn(accessToken, authorUrn, commentary) {
     headers: {
       Authorization: `Bearer ${accessToken}`,
       'Content-Type': 'application/json',
-      'LinkedIn-Version': '202506',
+      'LinkedIn-Version': LINKEDIN_API_VERSION,
       'X-Restli-Protocol-Version': '2.0.0',
     },
     body: JSON.stringify(payload),
