@@ -1,23 +1,25 @@
 ---
 layout: post
 title:  "Stopping Midnight Blizzard's Device Code Phishing: Prevention, Detection, and Persistence Hunting"
-description: "A restaurant IR where Attack Disruption evicted the attacker in under 18 minutes—but dwell time outlasted log retention. Here's how to defend against Midnight Blizzard's device code phishing before you're in that position."
+description: "A restaurant IR exposed at least 24 days of token replay before Attack Disruption evicted the attacker. Here's how to defend against device-code phishing used by Midnight Blizzard and other actors."
 categories: security devsecops azure identity entra incident-response
 linkedin_promote: true
-linkedin_promote_date: 2026-08-04
+linkedin_promote_date: 2026-08-27
 ---
 
 # Stopping Midnight Blizzard's Device Code Phishing: Prevention, Detection, and Persistence Hunting
 
-A friend of mine runs a restaurant. Not a tech company, not a government contractor—a restaurant. And recently he called me with that particular flavor of dread in his voice that security practitioners know immediately: something's wrong, and he doesn't know how wrong yet.
+A friend of mine runs a restaurant. Not a tech company, not a government contractor—a restaurant. Earlier this week, I published the [case study of his incident response](/2026/08/25/One-Day-Incident-Response-with-an-AI-SecOps-Squad.html). This is the companion technical playbook.
 
-What we found was a textbook device code phishing intrusion. Nation-state-adjacent technique, small business victim. Microsoft Defender XDR's Attack Disruption feature did its job spectacularly—once the attacker went interactive, it was under 18 minutes to eviction. Automatic. No analyst paged at 3am, no manual response playbook scrambled in real time. The system just... did it.
+What we found was a textbook device-code phishing intrusion. The tenant's telemetry tagged the activity as `STORM-3052` and classified it as nation-state, but that tracking label has no public profile that supports naming a sponsor. Midnight Blizzard and its Storm-2372 sub-cluster are documented users of the same technique; they are not an attribution for this restaurant incident.
 
-But here's the uncomfortable truth we ran into: **Attack Disruption is not the full story.** The attacker's actual dwell time—time from initial compromise to detection—extended well beyond the 30 days of log retention my friend had available. That gap meant we couldn't fully reconstruct the earliest stages of the compromise. The forensic record simply didn't go back far enough.
+Microsoft Defender XDR's Attack Disruption feature did its job spectacularly—once the attacker went interactive, it was under 18 minutes to eviction. Automatic. No analyst paged at 3am, no manual response playbook scrambled in real time. The system just... did it.
+
+But here's the uncomfortable truth we ran into: **Attack Disruption is not the full story.** The evidence established roughly 1,100 successful attacker token refreshes over at least 24 days. The available retention window did not establish whether the first observed refresh was the true initial compromise, so 24 days was a defensible lower bound—not a complete dwell-time measurement.
 
 Fast eviction of an active session is a win. Not knowing how long the attacker was present before they went interactive—and what they may have done in that window—is the failure mode. I'll come back to this at the end, because there's an entire section below on designing for long-dwell-time intrusions that addresses exactly this problem.
 
-The silver lining: using [SecOps Squad](https://github.com/x3nc0n/secops-squad-starter-kit), my open-source AI agent starter kit for security operations, I was able to complete a full, comprehensive incident response in under a day. The output was a structured IR report with concrete remediation recommendations—the kind of quality you'd expect from a dedicated SOC team, delivered for a small business that absolutely does not have one. If you want to understand how that tooling works, I wrote about the underlying pattern in [Squad: Standing Up an AI Agent Team for the SOC](/2026/07/21/Squad-Standing-Up-an-AI-Agent-Team-for-the-SOC.html).
+The silver lining: using [SecOps Squad](https://github.com/x3nc0n/secops-squad-starter-kit), my open-source AI agent starter kit for security operations, I was able to complete a full, comprehensive incident response in under a day. The output was a structured IR report with concrete remediation recommendations—the kind of quality you'd expect from a dedicated SOC team, delivered for a small business that absolutely does not have one. The [full case study](/2026/08/25/One-Day-Incident-Response-with-an-AI-SecOps-Squad.html) covers that workflow; [Squad: Standing Up an AI Agent Team for the SOC](/2026/07/21/Squad-Standing-Up-an-AI-Agent-Team-for-the-SOC.html) explains the underlying pattern.
 
 This post is the technical playbook I wished existed before that call came in.
 
@@ -348,7 +350,7 @@ Refresh-token revocation may not immediately terminate every active access token
 
 This is the section I want you to sit with, because it connects directly to the restaurant story I opened with.
 
-Attack Disruption automatically evicted the attacker once they went interactive—under 18 minutes. That capability is real, it works, and my friend is lucky he had it. But the reason we couldn't fully reconstruct the earliest compromise was straightforward: **the attacker's dwell time exceeded the available log retention window.** Thirty days of logs, attacker present for longer than that. The forensic gap was structural, not a missed detection.
+Attack Disruption automatically evicted the attacker once they went interactive—under 18 minutes. That capability is real, it works, and my friend is lucky he had it. But the evidence only established a lower bound: **at least 24 days of successful attacker token refreshes.** The available retention window did not prove that the first observed refresh was initial access. The forensic limit was structural, not permission to invent a more precise timeline.
 
 Long dwell time changes the investigation question from *"What happened around the alert?"* to *"What identity state could the attacker have created since the earliest plausible compromise?"*
 
@@ -392,7 +394,7 @@ Device registration or OAuth changes
 Mailbox collection, lateral phishing, or persistence
 ```
 
-Each stage increases confidence. More importantly, the sequence distinguishes an approved administrative workflow from an espionage operation establishing durable access. You can't run this analysis if you don't have the data. The restaurant's 30-day retention was fine for evicting the active session—it was not enough for a complete forensic reconstruction.
+Each stage increases confidence. More importantly, the sequence distinguishes an approved administrative workflow from an espionage operation establishing durable access. You can't run this analysis if you don't have the data. The restaurant's available retention was enough to prove a 24-day token-replay path and evict the active session—it was not enough to establish the true initial-access date.
 
 ## Final recommendations
 
@@ -416,7 +418,7 @@ This post is original synthesis and a personal anecdote, not a walkthrough of a 
 
 1. **Block device code flow now.** Start with a Conditional Access policy in report-only mode, run the KQL inventory query above, and enforce within two weeks. This is the single highest-value action in this post.
 
-2. **Your log retention is your forensic horizon.** The restaurant's 30-day window was enough to respond to the active session but not enough to fully reconstruct the intrusion. For identity infrastructure in Microsoft 365, target 90+ days for sign-in and audit logs. Plan for the attacker's dwell time to exceed whatever you have.
+2. **Your log retention is your forensic horizon.** The restaurant's available window was enough to prove at least 24 days of token replay but not enough to establish the true initial-access date. For identity infrastructure in Microsoft 365, target 90+ days for sign-in and audit logs. Plan for the attacker's dwell time to exceed whatever you have.
 
 3. **Attack Disruption did its job—but only on the interactive session.** Automatic eviction in under 18 minutes is genuinely impressive. It does not retroactively close the dwell-time gap or replace persistence hunting. Run through the full response list above, including checking OAuth app grants, device registrations, and mailbox rules.
 
@@ -424,7 +426,7 @@ This post is original synthesis and a personal anecdote, not a walkthrough of a 
 
 5. **Treat exceptions as privileged access.** Every approved device code carve-out should have a named owner, an expiration date, and a review cadence. If a legitimate use case existed two years ago, it probably has a better alternative today.
 
-6. **Small businesses can run enterprise-quality IR.** My friend runs a restaurant. Using [SecOps Squad](https://github.com/x3nc0n/secops-squad-starter-kit), I completed a comprehensive, report-quality incident response in under a day—with concrete remediation recommendations, not just "change your password." You don't need a SOC team to get SOC-quality output. See [Standing Up an AI Agent Team for the SOC](/2026/07/21/Squad-Standing-Up-an-AI-Agent-Team-for-the-SOC.html) if you want to build the same capability.
+6. **Small businesses can run enterprise-quality IR.** My friend runs a restaurant. Using [SecOps Squad](https://github.com/x3nc0n/secops-squad-starter-kit), I completed a comprehensive, report-quality incident response in under a day—with concrete remediation recommendations, not just "change your password." You don't need a SOC team to get SOC-quality output. Read the [incident case study](/2026/08/25/One-Day-Incident-Response-with-an-AI-SecOps-Squad.html), then see [Standing Up an AI Agent Team for the SOC](/2026/07/21/Squad-Standing-Up-an-AI-Agent-Team-for-the-SOC.html) if you want to build the same capability.
 
 7. **Make the attack sequence your hunting checklist.** The lure → device-login navigation → pending auth → successful sign-in → token use → device registration → collection chain is the forensic spine of a Storm-2372 investigation. If you can cover every stage with detection and retention, you can reconstruct the intrusion even when the attacker moves carefully.
 
