@@ -1,5 +1,6 @@
 ---
 permalink: /2026/07/29/How-I-Actually-Ship-This-Copilot-CLI-Squad-Workflow.html
+date: 2026-08-18
 layout: post
 title:  "How I Actually Ship This: The Copilot CLI + Squad Workflow"
 description: "Thirteen posts of security infrastructure, one repeating pattern. The capstone: the real end-to-end workflow — intent, scaffold, validate, iterate, govern, persist, compound — and the honest accounting of what AI changed (the ratio) and what it didn't (human accountability). Plus the whole estate's build cost."
