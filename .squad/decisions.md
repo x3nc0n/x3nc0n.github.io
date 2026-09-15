@@ -295,6 +295,67 @@ References `Squad: Standing Up an AI Agent Team for the SOC` as an outbound poin
 
 ---
 
+### Issue #15 Triage — LingoPop Privacy Policy (Trinity, 2026-09-14)
+
+**Decision:** Treat issue #15 as the sole P0 in the current open-issue queue for the goal of publishing more iOS apps. Route implementation to Switch and require Trinity review before release.
+
+**Rationale:** The configured privacy URL describes Sight Word Phrases rather than LingoPop, creating a material mismatch with the app's behavior and App Store privacy disclosures. The other open issues (#3, #7, #8, and #9) are blog or LinkedIn work and do not directly unblock iOS publishing.
+
+**Release gate:** Do not submit LingoPop until its app-specific policy is live and consistent with its actual local storage, permission use, sharing behavior, tracking posture, and App Store privacy answers.
+
+---
+
+### LingoPop Privacy Policy Integration Decision Log (Switch, 2026-09-14)
+
+**Status:** IMPLEMENTED (commit 4311dd1)
+
+#### Situation
+GitHub issue #15 requested privacy policy updates for LingoPop iOS app before App Store submission. The original policy covered only Sight Word Phrases (Android) and was not accurate for LingoPop's offline, no-tracking design.
+
+#### Key Decisions Made
+
+**1. Single-File Multi-App Policy**
+- **Decision:** Consolidate both apps' policies into one `privacy-policy.html` with separate, clearly labeled sections.
+- **Rationale:** Avoids URL fragmentation; navigation div helps readers find their app quickly; easier to maintain and update related policies together.
+
+**2. Explicit "What LingoPop Does NOT Do"**
+- **Decision:** Lead LingoPop section with bullet list of what it does NOT collect/request.
+- **Rationale:** App Store privacy labels require specificity; negative framing is legally safer than overpromises.
+
+**3. System Sharing Explanation**
+- **Decision:** Add dedicated section explaining that optional share feature sends only user-selected text and LingoPop does not receive/process it.
+- **Rationale:** Issue #15 flagged this gap; clear explanation prevents confusion about data leakage through share sheet.
+
+**4. GitHub Issues Links for Support**
+- **Decision:** Link to `x3nc0n/lingopop-ios/issues` for LingoPop, `x3nc0n/sight-word-phrases-app/issues` for SWP.
+- **Rationale:** Both repos are maintained and public; established support model for this team.
+
+**5. Last-Updated Dates Separate Per App**
+- **Decision:** Set LingoPop date to 2026-09-14 (today), keep SWP date at 2026-04-30 (original).
+- **Rationale:** Allows future updates to one app without re-dating the other.
+
+**6. Heading Hierarchy: h2 for apps, h3 for topics**
+- **Decision:** Use h2 (with distinct styling `.app-section`) for LingoPop and Sight Word Phrases sections, h3 for sub-topics within each.
+- **Rationale:** Visual separation aids screen readers and page navigation; consistent h3 structure reinforces parallel coverage.
+
+#### What Was NOT Changed
+- Sight Word Phrases section content remains as-is (no policy changes, just re-organized).
+- No Consent field in LingoPop section (iOS app does not require active consent statement).
+- No COPPA-specific redlines added; existing language deemed sufficient for both apps.
+
+#### Risks / Open Items
+- **Future in-app reset:** LingoPop policy mentions this as a future feature — document when implemented.
+- **Localization:** Current policy is English-only; no non-English versions mentioned.
+- **Legal review:** Policy reflects John Spaid's stated facts about LingoPop design (offline, no tracking). If legal review required before publication, revisit this decision.
+
+#### Validation
+- HTML structure: DOCTYPE, head/body, closing tags verified.
+- No secrets or invented URLs committed.
+- Tone: cautious and specific.
+- Link targets: both GitHub repo issue pages are live and maintained.
+
+---
+
 ## Governance
 
 - All meaningful changes require team consensus
