@@ -45,3 +45,34 @@
   - Closed with RSS + LinkedIn follow CTA per the promotion conventions in copilot-instructions.md.
   - Redaction: all subscription and tenant IDs omitted; Spava-Corp referenced only as "demo org."
   - Squad framework referenced as open-source + accessible on any Copilot tier — per audience rules (no premium gating assumption).
+
+### 2026-09-14 — LingoPop iOS Privacy Policy (Issue #15)
+
+**File updated:** `privacy-policy.html`
+
+**What I did:**
+- Converted single-app privacy policy to multi-app policy with separate sections for LingoPop and Sight Word Phrases.
+- Added LingoPop section that covers:
+  - Offline iOS puzzle game, no accounts/analytics/ads/tracking/third-party services.
+  - Local data: game progress, preferences, statistics, outcomes stored in app sandbox only.
+  - System sharing: optional, user-controlled, app doesn't retain shared content.
+  - No sensitive permissions requested (no microphone, camera, location, contacts, etc.).
+  - Data deleted when app is uninstalled; future versions may add in-app reset.
+  - LingoPop contact link → x3nc0n/lingopop-ios GitHub issues.
+- Kept Sight Word Phrases section intact with Android-specific details (microphone/speech recognition, Vosk, Jetpack/Room).
+- Preserved SWP contact link to x3nc0n/sight-word-phrases-app.
+- Updated title to "Privacy Policies — spaid.dev Apps" and added in-page navigation (jump links).
+- Applied consistent heading hierarchy: h2 for app sections, h3 for topics, h4 for permission sub-topics.
+- Last-updated dates: LingoPop 2026-09-14, SWP 2026-04-30 (preserved).
+
+**Key structural decisions:**
+- Two-app policy on single page was clearer than separate files; navigation div helps readers find their app.
+- Explicitly stated what LingoPop does NOT do (no microphone, tracking, accounts) to align with App Store privacy labeling.
+- System sharing section was critical—addressed issue concern that "optional" features need clear explanation that app doesn't retain shared data.
+- Contact links point to GitHub issues, not email, consistent with repo maintenance model.
+- Legal language: cautious and specific ("You can remove...by uninstalling the app") rather than generic consent.
+
+**Validation:**
+- HTML structure verified (doctype, head/body closure, attribute syntax).
+- No secrets or invented URLs; all links point to maintained repos.
+- Tone matches existing Sight Word Phrases policy; no invented legal claims.

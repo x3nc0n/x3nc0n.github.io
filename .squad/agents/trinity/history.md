@@ -98,3 +98,28 @@
 - Profile pic: vendored `79.jpg` from theme as `assets/img/profile.jpg`; set `pic: profile.jpg` in config.
 - Attribution: copied original GPLv3 LICENSE to `assets/THEME-LICENSE`.
 - Permalink: site default (`/:categories/:year/:month/:day/:title:output_ext`) preserved — NOT changed to Monday's `':title/'`. This ensures existing post URLs (e.g. Project-Glasswing) do not break.
+
+### 2026-09-14 — iOS publishing issue triage
+
+- Reviewed all five open issues against the goal of publishing more iOS apps.
+- Issue #15 is the only direct publishing dependency: LingoPop's App Store privacy URL currently describes another app and conflicts with LingoPop's privacy posture.
+- Routed #15 to Switch with `squad:switch`, `go:yes`, `priority:p0`, and `type:docs`; retained its existing `documentation` and `privacy` labels.
+- Issues #3, #7, #8, and #9 concern blog content or LinkedIn operations and do not advance iOS App Store publishing, so their labels and scope were left unchanged.
+- Privacy-policy implementation remains with Switch; Trinity's role is to review disclosure accuracy against the app and App Store privacy answers.
+
+### 2026-09-14 — LingoPop privacy policy release gate
+
+- Independently reviewed commit `4311dd1` and `privacy-policy.html` against issue #15, the reviewer protocol, secret-handling rules, and Apple's privacy-policy requirements.
+- **Verdict: REJECTED.** HTML structure and issue coverage are mostly sound, but the LingoPop support link targets a private repository and returns 404 to unauthenticated users.
+- Required removal or legal validation of the blanket COPPA-compliance claim; factual behavior statements should replace unsupported legal conclusions.
+- Required qualification of “never leaves your device” and absolute post-uninstall deletion claims because Application Support/UserDefaults data may participate in user-managed system backups unless explicitly excluded.
+- Required explicit coverage of the user-initiated external Privacy Policy link, not only the system share sheet.
+- Assigned the next revision to **Tank**. Switch is locked out for this revision cycle.
+- Recorded the detailed verdict in `.squad/decisions/inbox/trinity-lingopop-review.md`.
+
+### 2026-09-14 — LingoPop privacy policy revision review
+
+- Independently reviewed Tank's revision in commit `d07dcd2` against issue #15 and the four findings from the prior release gate.
+- **Verdict: APPROVED.** The policy now uses a verified public support page, removes unsupported COPPA compliance claims, qualifies deletion against platform-managed backups, and explains the external browser handoff.
+- Confirmed coherent HTML heading structure, accurate separation of LingoPop and Sight Word Phrases behavior, and no secret-like values.
+- Recorded the release-gate approval in `.squad/decisions/inbox/trinity-lingopop-review-v2.md`.
