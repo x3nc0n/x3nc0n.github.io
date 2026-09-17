@@ -98,3 +98,19 @@
 **Pattern:** Untracked repos are generally pre-May 2026 (pre-AI-intensive era) or smaller/focused repos. The COST.md convention was established around the deepseismic2 project (June 2026) and propagated forward.
 
 **Estate tracked total:** ~$362 across 6 repos. Full estate estimate with untracked repos: ~$500–750.
+
+## LingoPop Privacy Policy Revision (2026-09-14)
+
+**Task:** Trinity rejected `privacy-policy.html` (issue #15) on four grounds; Switch was locked out this cycle, so Tank made the revision directly.
+
+**Independent verification via `gh`:**
+- `x3nc0n/lingopop-ios` and `x3nc0n/sight-word-phrases-app` are both **private** repos — confirms Trinity's finding that their `/issues` links 404 for the public and cannot serve as a public contact channel.
+- `x3nc0n/x3nc0n.github.io` (this blog repo) is **public**; its existing `support.html` already publishes `mailto:support@spaid.dev` and a `/support` page, which is the established public contact convention site-wide.
+
+**Edits made to `privacy-policy.html` only:**
+1. Replaced both apps' contact links with `https://www.spaid.dev/support`.
+2. Removed the unsupported "complies with...COPPA" claim from both LingoPop and Sight Word Phrases sections; replaced with factual no-collection statements plus a disclaimer that this is not a legal compliance determination.
+3. Qualified "never leaves your device" / "completely removed" / "does not persist anywhere" language in Local Data, Data Deletion, and Your Rights sections to acknowledge OS/cloud backups are outside the app's control.
+4. Added an "About this page" disclosure under the page nav explaining that opening the policy from inside an app is an external web action, and the app does not control data handled by the browser or website thereafter.
+
+**Decision record:** `.squad/decisions/inbox/tank-lingopop-privacy-revision.md`. Validated file still parses as well-formed HTML after edits.
